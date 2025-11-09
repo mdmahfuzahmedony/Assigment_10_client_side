@@ -150,7 +150,7 @@ const Footer = () => {
             </a>
           </div>
           <div className="text-center sm:text-right">
-            <p classname="mt">{todayDate}</p>
+            <p className="mt">{todayDate}</p>
             <p>© {currentYear} RoamRides. All rights reserved.</p>
             <p>
               Develop by <span className="text-blue-700">Mahfuz ahmed</span>
