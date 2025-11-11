@@ -1,7 +1,6 @@
 import React, { useContext, useState } from "react";
 import { Link } from "react-router";
 import "../index.css";
-
 import { AuthContext } from "../AuthProvider/Authprovider";
 
 const Navbar = () => {
@@ -23,15 +22,13 @@ const Navbar = () => {
         console.error("Error logging out:", error);
       });
   };
-
   const userProfilePic = user?.photoURL;
-
   const userName = user?.displayName || "User Name";
   const userEmail = user?.email || "user@example.com";
 
   return (
-    <div className="main_container mx-auto">
-      <div className="navbar bg-base-100 shadow-sm">
+    <div className="fixed top-0 left-0 w-full z-50 ">
+      <div className="navbar max-w-[1400px] mx-auto shadow-sm ">
         <div className="navbar-start">
           <div className="dropdown">
             <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">

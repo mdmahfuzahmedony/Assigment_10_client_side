@@ -8,9 +8,7 @@ import { toast } from "react-toastify";
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const Navigate = useNavigate();
-
   const { signInUser, signInWithGoogle } = useContext(AuthContext); 
-
   const fromHandel = (e) => {
     e.preventDefault();
     const email = e.target.email.value;
@@ -25,7 +23,6 @@ const Login = () => {
       })
       .catch((err) => toast.error(`Login failed: ${err.message}`)); 
   };
-
   const signINgoogle = () => {
     signInWithGoogle()
       .then((result) => { 
@@ -42,7 +39,7 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="hero bg-base-200 min-h-[80vh] w-full max-w-5xl rounded-lg shadow-xl overflow-hidden">
         <div className="hero-content flex-col lg:flex-row p-0 w-full h-full">
-          {/* Left Side Image */}
+      
           <div
             className="relative w-full lg:w-1/2 h-64 lg:h-full flex items-center justify-center text-white p-4"
             style={{
