@@ -11,15 +11,14 @@ const NewsAndArticles = () => {
       try {
         const response = await fetch("http://localhost:2001/newsandarticle");
 
-        // --- FIX 1: Check if the response is OK and parse the JSON ---
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const data = await response.json(); // Parse the JSON data from the response
+        const data = await response.json();
 
-        setArticles(data); // Set the parsed data to the articles state
+        setArticles(data);
       } catch (err) {
-        setError("Failed to fetch articles: " + err.message); // Include error message for more detail
+        setError("Failed to fetch articles: " + err.message);
         console.error("Error fetching articles:", err);
       } finally {
         setLoading(false);
@@ -27,11 +26,11 @@ const NewsAndArticles = () => {
     };
 
     fetchArticles();
-  }, []); // Empty dependency array means this effect runs once after the initial render
+  }, []);
 
   if (loading) {
     return (
-      <section className="py-16 md:py-24 bg-[#0a0f1b]">
+      <section className="py-16 md:py-24 ">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
           Loading articles...
         </div>
@@ -50,10 +49,8 @@ const NewsAndArticles = () => {
   }
 
   const formatDate = (dateString) => {
-    // Ensure dateString is valid before creating Date object
     if (!dateString) return { day: '', month: '' };
     const date = new Date(dateString);
-    // Check if the date is valid (e.g., not "Invalid Date")
     if (isNaN(date.getTime())) return { day: '', month: '' };
 
     const day = date.getDate();
@@ -71,7 +68,6 @@ const NewsAndArticles = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">
-          {/* --- FIX 2: You need to map over the 'articles' state, not 'setArticles' --- */}
           {articles.map((article) => {
             const formattedDate = formatDate(article.date);
             return (
@@ -80,8 +76,9 @@ const NewsAndArticles = () => {
                 className="bg-[#101828] rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden group"
               >
                 <div className="relative">
+                  {/* --- CHANGE MADE HERE: Using article.banner_image for the image source --- */}
                   <img
-                    src={article.image} // Make sure your API provides an 'image' field
+                    src={article.banner_image}
                     alt={article.title}
                     className="w-full h-52 object-cover transition-transform duration-300 group-hover:scale-105"
                   />
@@ -111,7 +108,7 @@ const NewsAndArticles = () => {
 
                   <div className="flex items-center text-gray-400 text-sm">
                     <img
-                      src={article.admin.image} // Make sure your API provides 'admin.image'
+                      src={article.admin.image}
                       alt={article.admin.name}
                       className="h-8 w-8 rounded-full object-cover mr-2"
                     />

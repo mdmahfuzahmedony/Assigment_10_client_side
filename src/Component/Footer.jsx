@@ -79,7 +79,7 @@ const Footer = () => {
                   href="#"
                   className="hover:text-blue-500 transition duration-300"
                 >
-                  Contact
+                  Terms & Conditions
                 </a>
               </li>
             </ul>

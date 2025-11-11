@@ -4,7 +4,8 @@ import Home from "../Pages/Home";
 import Footer from "../Component/Footer";
 import Login from "../Pages/Login";
 import Register from "../Pages/Register";
-import CarallProduct from "../Pages/CarallProduct";
+import BrowseCars from "../Pages/BrowseCars";
+import CarDetailsPage from "../Pages/CarDetailsPage";
 
 export const router = createBrowserRouter([
   {
@@ -27,11 +28,19 @@ export const router = createBrowserRouter([
       {
         path: "/register",
         Component: Register,
-      },{
-        path:"/carallproduct",
-        Component:CarallProduct,
+      },
+      {
+        path:"/browsecars",
+        Component:BrowseCars,
         loader:() =>fetch("http://localhost:2001/carProduct")
-      }
+      },
+      {
+        path:"/cardetails/:id",
+        Component:CarDetailsPage,
+        loader:({params})=>fetch(`http://localhost:2001/cardetails/${params.id}`)
+
+      },
+     
     ],
   },
 ]);

@@ -1,6 +1,6 @@
 import React from 'react';
 
-const CarDetails = () => {
+const ErrorPage = () => {
   return (
     <div>
       
@@ -8,4 +8,4 @@ const CarDetails = () => {
   );
 };
 
-export default CarDetails;
+export default ErrorPage;
