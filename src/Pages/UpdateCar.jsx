@@ -1,14 +1,15 @@
-import React, { useContext, useState } from "react"; // useState add kora hoyeche
-import { AuthContext } from "../AuthProvider/Authprovider"; // Adjust path as needed
-import { useNavigate } from "react-router"; // Use react-router-dom for v6+
+import React, { useContext, useEffect, useState } from "react";
+import { AuthContext } from "../AuthProvider/Authprovider";
+import { useParams, useNavigate } from "react-router"; // useParams for ID, useNavigate for redirection
 import { toast } from "react-toastify";
-// react-hot-toast use korchi
 
-const AddCar = () => {
-  const { user } = useContext(AuthContext);
+
+const UpdateCar = () => {
+  const { user, loading: authLoading } = useContext(AuthContext); // authLoading to distinguish
+  const { id } = useParams(); // Get car ID from URL
   const navigate = useNavigate();
 
-  // State variables for each form field
+  // State for form fields (initialized with empty strings)
   const [carName, setCarName] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
@@ -16,13 +17,70 @@ const AddCar = () => {
   const [location, setLocation] = useState("");
   const [hostedImageUrl, setHostedImageUrl] = useState("");
 
-  // State variables for validation errors
-  const [errors, setErrors] = useState({});
+  // State for provider details (read-only)
+  const [providerName, setProviderName] = useState("");
+  const [providerEmail, setProviderEmail] = useState("");
 
-  // Function to handle form submission (eita holo apnar handleSubmit function)
+  const [isLoading, setIsLoading] = useState(true); // Loading state for fetching car data
+  const [errors, setErrors] = useState({}); // State for validation errors
+
+  // Redirect if user is not logged in
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate("/login");
+    }
+  }, [user, authLoading, navigate]);
+
+  // Fetch car data to pre-fill the form
+  useEffect(() => {
+    const fetchCarData = async () => {
+      if (!user && !authLoading) { // Ensure user is loaded before fetching if private route
+        setIsLoading(false);
+        return;
+      }
+      if (id) {
+        setIsLoading(true);
+        try {
+          const response = await fetch(`http://localhost:2001/cardetails/${id}`); // Existing API to get single car
+          if (!response.ok) {
+            throw new Error("Failed to fetch car data");
+          }
+          const carData = await response.json();
+
+          // Check if the logged-in user is the actual provider of this car
+          if (user?.email && carData.providerEmail !== user.email) {
+            toast.error("You are not authorized to edit this car.");
+            navigate("/my-listings"); // Redirect unauthorized users
+            return;
+          }
+
+          // Pre-fill form states
+          setCarName(carData.carName || "");
+          setDescription(carData.description || "");
+          setCategory(carData.category || "");
+          setRentPricePerDay(carData.rentPricePerDay || "");
+          setLocation(carData.location || "");
+          setHostedImageUrl(carData.hostedImageUrl || "");
+          setProviderName(carData.providerName || user?.displayName || ""); // Fallback for provider name
+          setProviderEmail(carData.providerEmail || user?.email || ""); // Fallback for provider email
+        } catch (error) {
+          console.error("Error fetching car for update:", error);
+          toast.error("Could not load car data for update.");
+          navigate("/my-listings"); // Redirect on error
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        setIsLoading(false); // No ID, so stop loading
+      }
+    };
+
+    fetchCarData();
+  }, [id, user, authLoading, navigate]); // Rerun if ID, user, or authLoading changes
+
+  // Handle form submission
   const handleFormSubmit = async (e) => {
-    // Event object receive korbe
-    e.preventDefault(); // Default form submission prevent korbe
+    e.preventDefault();
 
     // Manual Validation
     const newErrors = {};
@@ -45,83 +103,86 @@ const AddCar = () => {
       newErrors.hostedImageUrl = "Please enter a valid URL";
     }
 
-    setErrors(newErrors); // Update errors state
+    setErrors(newErrors);
 
-    // If there are any errors, stop submission
     if (Object.keys(newErrors).length > 0) {
       toast.error("Please fix the form errors.");
       return;
     }
 
-    // If no errors, proceed with submission
-    const loadingToastId = toast.loading("Adding car...");
+    const loadingToastId = toast.loading("Updating car...");
 
-    const carData = {
-      carName, // Shorthand for carName: carName
+    const updatedCar = {
+      carName,
       description,
       category,
       rentPricePerDay: parseFloat(rentPricePerDay),
       location,
       hostedImageUrl,
-      providerName: user?.displayName || "Unknown",
-      providerEmail: user?.email || "unknown@example.com",
-      createdAt: new Date().toISOString(),
+      // providerName and providerEmail should not be sent for update, as they are read-only.
+      // The backend will ensure they are not modified.
     };
 
-    console.log("Car data to submit:", carData);
-
     try {
-      const response = await fetch("http://localhost:2001/add-car", {
-        method: "POST",
+      const response = await fetch(`http://localhost:2001/update-car/${id}`, { // Your new PUT backend API endpoint
+        method: "PUT", // Use PUT for updating entire resource
         headers: {
           "Content-Type": "application/json",
           // Authorization: `Bearer ${user.accessToken}` // If you have auth
         },
-        body: JSON.stringify(carData),
+        body: JSON.stringify(updatedCar),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to add car");
+        throw new Error(errorData.message || "Failed to update car");
       }
 
       const result = await response.json();
-      console.log("Car added successfully:", result);
+      console.log("Car updated successfully:", result);
 
-      toast.success("Car added successfully!", { id: loadingToastId });
-
-      // Clear all form fields after success
-      setCarName("");
-      setDescription("");
-      setCategory("");
-      setRentPricePerDay("");
-      setLocation("");
-      setHostedImageUrl("");
+      toast.success("Car updated successfully!", { id: loadingToastId });
       setErrors({}); // Clear any previous errors
-      navigate("/my-listings");
+      navigate("/my-listings"); // Redirect back to My Listings page
     } catch (error) {
-      console.error("Error adding car:", error);
-      toast.error(`Error: ${error.message || "Failed to add car"}`, {
+      console.error("Error updating car:", error);
+      toast.error(`Error: ${error.message || "Failed to update car"}`, {
         id: loadingToastId,
       });
     }
   };
 
+  if (authLoading || isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <span className="loading loading-spinner loading-lg text-blue-600"></span>
+        <p className="text-xl text-gray-700 ml-3">Loading car data...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-xl text-red-500">Please log in to update cars.</p>
+      </div>
+    );
+  }
+
+
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 mt-20 mb-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl w-full bg-[#101228] p-8 rounded-lg shadow-xl border border-gray-200">
+    <div className="min-h-screen  flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 mt-25 mb-10">
+      <div className="max-w-4xl w-full bg-[#101128] p-8 rounded-lg shadow-xl border border-gray-200">
         <div className="text-center mb-10">
-          <h2 className="text-4xl font-extrabold text-gray-200 mb-2 animate-fade-in-down">
-            Add Your Car to Roam<span className="text-blue-600"> Rides</span>
+          <h2 className="text-4xl font-extrabold text-gray-200 mb-2">
+            Update Car <span className="text-blue-600">Details</span>
           </h2>
-          <p className="text-lg text-gray-400 animate-fade-in-up mt-4">
-            Fill in the details below to list your car for rent.
+          <p className="text-md text-gray-400 mt-4">
+            Modify the information for your car listing.
           </p>
         </div>
 
         <form onSubmit={handleFormSubmit} className="space-y-7">
-          {" "}
-          {/* onSubmit direct handleFormSubmit ke call korbe */}
           {/* Car Name */}
           <div>
             <label
@@ -133,8 +194,8 @@ const AddCar = () => {
             <input
               type="text"
               id="carName"
-              value={carName} // value state theke ashbe
-              onChange={(e) => setCarName(e.target.value)} // onChange handler state update korbe
+              value={carName}
+              onChange={(e) => setCarName(e.target.value)}
               className={`mt-1 block w-full px-4 py-2 border ${
                 errors.carName ? "border-red-500" : "border-gray-300"
               } rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out`}
@@ -144,6 +205,7 @@ const AddCar = () => {
               <p className="mt-1 text-sm text-red-600">{errors.carName}</p>
             )}
           </div>
+
           {/* Description */}
           <div>
             <label
@@ -166,6 +228,7 @@ const AddCar = () => {
               <p className="mt-1 text-sm text-red-600">{errors.description}</p>
             )}
           </div>
+
           {/* Category */}
           <div>
             <label
@@ -179,8 +242,8 @@ const AddCar = () => {
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               className={`mt-1 block w-full px-4 py-2 border ${
-                errors.category ? "border-red-500" : ""
-              } rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out`}
+                errors.category ? "border-red-500" : "border-gray-300"
+              }  rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out`}
             >
               <option value="">Select a Category</option>
               <option value="Sedan">Sedan</option>
@@ -193,6 +256,7 @@ const AddCar = () => {
               <p className="mt-1 text-sm text-red-600">{errors.category}</p>
             )}
           </div>
+
           {/* Rent Price (per day) */}
           <div>
             <label
@@ -218,11 +282,12 @@ const AddCar = () => {
               </p>
             )}
           </div>
+
           {/* Location */}
           <div>
             <label
               htmlFor="location"
-              className="block text-sm font-medium text-gray-200 mb-4"
+              className="block text-sm font-medium text-gray-700 mb-1"
             >
               Location
             </label>
@@ -240,11 +305,12 @@ const AddCar = () => {
               <p className="mt-1 text-sm text-red-600">{errors.location}</p>
             )}
           </div>
+
           {/* Hosted Image URL */}
           <div>
             <label
               htmlFor="hostedImageUrl"
-              className="block text-sm font-medium text-gray-200 mb-4"
+              className="block text-sm font-medium text-gray-700 mb-1"
             >
               Hosted Image URL (Unsplash, Google, etc.)
             </label>
@@ -263,46 +329,55 @@ const AddCar = () => {
                 {errors.hostedImageUrl}
               </p>
             )}
+             {hostedImageUrl && ( // Show image preview
+              <div className="mt-4">
+                <p className="text-sm font-medium text-gray-700 mb-2">Current Image Preview:</p>
+                <img src={hostedImageUrl} alt="Car Preview" className="max-w-full h-48 object-contain rounded-md border border-gray-300" />
+              </div>
+            )}
           </div>
+
           {/* Provider Name (Read-only) */}
           <div>
             <label
               htmlFor="providerName"
-              className="block text-sm font-medium text-gray-200 mb-4"
+              className="block text-sm font-medium text-gray-700 mb-1"
             >
               Provider Name
             </label>
             <input
               type="text"
               id="providerName"
-              value={user?.displayName || "Loading..."}
+              value={providerName} // Display fetched provider name
               readOnly
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm cursor-not-allowed"
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 bg-gray-100 rounded-md shadow-sm cursor-not-allowed"
             />
           </div>
+
           {/* Provider Email (Read-only) */}
           <div>
             <label
               htmlFor="providerEmail"
-              className="block text-sm font-medium text-gray-200 mb-4"
+              className="block text-sm font-medium text-gray-700 mb-1"
             >
               Provider Email
             </label>
             <input
               type="email"
               id="providerEmail"
-              value={user?.email || "Loading..."}
+              value={providerEmail} // Display fetched provider email
               readOnly
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm cursor-not-allowed"
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 bg-gray-100 rounded-md shadow-sm cursor-not-allowed"
             />
           </div>
+
           {/* Submit Button */}
           <div>
             <button
               type="submit"
               className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out transform hover:scale-105"
             >
-              Add Car
+              Update Car
             </button>
           </div>
         </form>
@@ -311,4 +386,4 @@ const AddCar = () => {
   );
 };
 
-export default AddCar;
+export default UpdateCar;

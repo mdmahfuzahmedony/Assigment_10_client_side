@@ -9,6 +9,7 @@ import CarDetailsPage from "../Pages/CarDetailsPage";
 import AddCars from "../Pages/AddCars";
 import MyLIsting from "../Pages/MyLIsting";
 import MyBookings from "../Pages/MyBookings";
+import UpdateCar from "../Pages/UpdateCar";
 
 export const router = createBrowserRouter([
   {
@@ -53,6 +54,10 @@ export const router = createBrowserRouter([
       {
         path:"/my-bookings",
         Component:MyBookings
+      },
+      {
+        path:"/update_car",
+        Component:UpdateCar
       }
      
     ],

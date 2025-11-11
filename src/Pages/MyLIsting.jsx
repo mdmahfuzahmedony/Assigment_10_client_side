@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../AuthProvider/Authprovider"; // Adjust path as needed
-import { useNavigate } from "react-router"; // For navigation (e.g., to update page)
+import { NavLink, useNavigate } from "react-router"; // For navigation (e.g., to update page)
 
 import { FaEdit, FaTrash } from "react-icons/fa"; // For icons (install react-icons if not already)
 import { toast } from "react-toastify";
@@ -212,13 +212,13 @@ const MyListings = () => {
 
                     <td className="px-6  py-4 whitespace-nowrap text-center text-sm font-medium">
                       <div className="flex gap-4">
-                        <button
+                        <NavLink to={"/update_car"}
                           onClick={() => handleUpdateCar(car._id)}
                           className="btn btn-primary"
                           title="Update Car"
                         >
                           Update
-                        </button>
+                        </NavLink>
                         <button
                           onClick={() => handleDeleteCar(car._id)}
                           className="btn btn-error"
