@@ -6,6 +6,9 @@ import Login from "../Pages/Login";
 import Register from "../Pages/Register";
 import BrowseCars from "../Pages/BrowseCars";
 import CarDetailsPage from "../Pages/CarDetailsPage";
+import AddCars from "../Pages/AddCars";
+import MyLIsting from "../Pages/MyLIsting";
+import MyBookings from "../Pages/MyBookings";
 
 export const router = createBrowserRouter([
   {
@@ -40,6 +43,17 @@ export const router = createBrowserRouter([
         loader:({params})=>fetch(`http://localhost:2001/cardetails/${params.id}`)
 
       },
+      {
+        path:"/add-car",
+        Component:AddCars,
+      },{
+        path:"/my-listings",
+        Component:MyLIsting
+      },
+      {
+        path:"/my-bookings",
+        Component:MyBookings
+      }
      
     ],
   },
