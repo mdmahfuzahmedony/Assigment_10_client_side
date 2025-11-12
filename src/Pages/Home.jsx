@@ -37,7 +37,7 @@ const Home = () => {
     };
 
     fetchAllCars();
-  }); // backendBaseUrl পরিবর্তন হলে পুনরায় ফেচ করবে
+  }); 
 
   const sliceProduct = Array.isArray(allCars) ? allCars.slice(0, 8) : []; // স্টেটে থাকা ডেটা ব্যবহার করুন
 

@@ -6,7 +6,7 @@ const MyBookings = () => {
 
   useEffect(() => {
     // ✅ Future use: Replace this URL with your actual backend endpoint
-    fetch("https://assigmen-10-server-side.vercel.app//bookings")
+    fetch("https://assigmen-10-server-side.vercel.app/bookings")
       .then((res) => res.json())
       .then((data) => {
         setBookings(data);

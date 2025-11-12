@@ -24,7 +24,7 @@ const MyListings = () => {
         setIsLoading(true);
         try {
           const response = await fetch(
-            `https://assigmen-10-server-side.vercel.app//my-cars/${user.email}`
+            `https://assigmen-10-server-side.vercel.app/my-cars/${user.email}`
           );
           if (!response.ok) {
             throw new Error("Failed to fetch cars");

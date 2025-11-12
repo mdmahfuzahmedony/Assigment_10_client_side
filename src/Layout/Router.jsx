@@ -87,7 +87,7 @@ export const router = createBrowserRouter([
         ),
         loader: ({ params }) =>
           fetch(
-            `https://assigmen-10-server-side.vercel.app//cardetails/${params.id}`
+            `https://assigmen-10-server-side.vercel.app/cardetails/${params.id}`
           ),
       },
     ],
