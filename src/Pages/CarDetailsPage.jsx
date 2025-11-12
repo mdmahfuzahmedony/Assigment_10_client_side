@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   MapPin,
   Tag,
@@ -8,30 +8,30 @@ import {
   CheckCircle,
   XCircle,
 } from "lucide-react";
-import { useLoaderData } from "react-router";
+import { useLoaderData, useNavigate } from "react-router";
 
 const CarDetailsPage = () => {
   const data = useLoaderData();
-  console.log(data);
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const {
     "Car Name": carName,
     "Rent Price (per day)": rentPrice,
     "Car Type / Model": carType,
     "Provider Name": providerName,
+    providerEmail,
     image: carImage,
     description,
     location,
     status,
   } = data || {};
 
-
   const displayRentPrice =
     typeof rentPrice === "object" && rentPrice?.$numberInt
       ? rentPrice.$numberInt
       : rentPrice;
 
-  // fallback data
   const descriptionText =
     description ||
     "No detailed description available for this car. It's a fantastic choice for its category and price point.";
@@ -39,13 +39,56 @@ const CarDetailsPage = () => {
   const statusText = status || "available";
 
   // optional provider email
-  const providerEmail =
+  const finalProviderEmail =
+    providerEmail ||
     "contact@" + providerName?.toLowerCase().replace(/\s/g, "") + ".com";
 
+  // ==============================================
+  // 🚗 BOOK NOW HANDLER
+  // ==============================================
+  const handleBookNow = async () => {
+    const userEmail = "user@example.com"; // TODO: Replace with logged-in user's email (from AuthContext)
+    const bookingInfo = {
+      carName,
+      carImage,
+      rentPrice: displayRentPrice,
+      carType,
+      location: locationText,
+      providerName,
+      providerEmail: finalProviderEmail,
+      userEmail,
+      date: new Date().toLocaleString(),
+      status: "pending",
+    };
+
+    setLoading(true);
+    try {
+      const res = await fetch("http://localhost:2001/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bookingInfo),
+      });
+
+      if (res.ok) {
+        alert("✅ Booking successful!");
+        navigate("/my-bookings");
+      } else {
+        alert("❌ Failed to create booking. Try again!");
+      }
+    } catch (error) {
+      console.error("Error creating booking:", error);
+      alert("⚠️ Something went wrong!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ==============================================
+
   return (
-    <section className="min-h-screen max-w-[1200px] mx-auto my-30 py-16 md:py-24  text-white">
+    <section className="min-h-screen max-w-[1200px] mx-auto my-30 py-16 md:py-24 text-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className=" rounded-xl shadow-lg overflow-hidden md:flex">
+        <div className="rounded-xl shadow-lg overflow-hidden md:flex bg-[#101228]">
           {/* Car Image */}
           <div className="md:w-1/2 rounded-2xl">
             <img
@@ -133,7 +176,7 @@ const CarDetailsPage = () => {
                   <span>
                     Email:{" "}
                     <span className="font-semibold text-white">
-                      {providerEmail}
+                      {finalProviderEmail}
                     </span>
                   </span>
                 </div>
@@ -142,8 +185,16 @@ const CarDetailsPage = () => {
 
             {/* Book Button */}
             <div className="mt-8">
-              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition-colors duration-200">
-                Book Now
+              <button
+                onClick={handleBookNow}
+                disabled={loading || statusText !== "available"}
+                className={`w-full ${
+                  loading
+                    ? "bg-gray-500 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700"
+                } text-white font-bold py-3 px-6 rounded-lg text-lg transition-colors duration-200`}
+              >
+                {loading ? "Booking..." : "Book Now"}
               </button>
             </div>
           </div>
