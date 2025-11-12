@@ -9,7 +9,9 @@ const TestimonialSection = () => {
   useEffect(() => {
     const fetchTestimonials = async () => {
       try {
-        const response = await fetch("http://localhost:2001/testimonial");
+        const response = await fetch(
+          "https://assigmen-10-server-side.vercel.app//testimonial"
+        );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -29,8 +31,8 @@ const TestimonialSection = () => {
     return (
       <section className="py-20 px-6  text-white">
         <div className="max-w-[1400px] mx-auto text-center">
-          <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
-            What Our Customers Say
+          <h2 className="text-3xl md:text-3xl font-black text-white mb-4">
+            What <span className="text-blue-500">Our Customers Say</span>
           </h2>
           <p className="text-gray-400 mb-12 max-w-[700px] mx-auto">
             Loading testimonials...
@@ -51,7 +53,7 @@ const TestimonialSection = () => {
     return (
       <section className="py-20 px-6  text-white">
         <div className="max-w-[1400px] mx-auto text-center">
-          <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
+          <h2 className="text-3xl md:text-3xl font-black text-white mb-4">
             What Our Customers Say
           </h2>
           <p className="text-red-500 mb-12 max-w-[700px] mx-auto">{error}</p>
@@ -74,12 +76,11 @@ const TestimonialSection = () => {
       </section>
     );
   }
-
   return (
     <section className="py-20 px-6">
       <div className="max-w-[1400px] mx-auto text-center">
-        <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
-          What Our Customers Say
+        <h2 className="text-3xl md:text-3xl font-black text-white mb-4">
+          What <span className="text-blue-500">Our Customers Say</span>
         </h2>
         <p className="text-gray-400 mb-12 max-w-[700px] mx-auto">
           We’re proud to have earned the trust of thousands of satisfied

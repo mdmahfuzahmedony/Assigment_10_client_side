@@ -9,7 +9,9 @@ const NewsAndArticles = () => {
   useEffect(() => {
     const fetchArticles = async () => {
       try {
-        const response = await fetch("http://localhost:2001/newsandarticle");
+        const response = await fetch(
+          "https://assigmen-10-server-side.vercel.app//newsandarticle"
+        );
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -49,9 +51,9 @@ const NewsAndArticles = () => {
   }
 
   const formatDate = (dateString) => {
-    if (!dateString) return { day: '', month: '' };
+    if (!dateString) return { day: "", month: "" };
     const date = new Date(dateString);
-    if (isNaN(date.getTime())) return { day: '', month: '' };
+    if (isNaN(date.getTime())) return { day: "", month: "" };
 
     const day = date.getDate();
     const month = date.toLocaleString("en-US", { month: "short" });
@@ -62,8 +64,8 @@ const NewsAndArticles = () => {
     <section className="py-16 md:py-24 bg-[#0a0f1b] ">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12 md:mb-16">
-          <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white leading-tight">
-            News & Articles
+          <h2 className="text-3xl sm:text-5xl md:text-3xl font-black text-white leading-tight">
+            News & <span className="text-blue-500">Articles</span>
           </h2>
         </div>
 

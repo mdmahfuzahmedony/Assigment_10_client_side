@@ -6,7 +6,7 @@ const MyBookings = () => {
 
   useEffect(() => {
     // ✅ Future use: Replace this URL with your actual backend endpoint
-    fetch("http://localhost:2001/bookings")
+    fetch("https://assigmen-10-server-side.vercel.app//bookings")
       .then((res) => res.json())
       .then((data) => {
         setBookings(data);
@@ -28,9 +28,7 @@ const MyBookings = () => {
 
   return (
     <div className="max-w-6xl mx-auto p-6 min-h-screen bg-[#0f1124] text-white mt-30 mb-20">
-      <h1 className="text-3xl font-bold text-center mb-8">
-      My Bookings
-      </h1>
+      <h1 className="text-3xl font-bold text-center mb-8">My Bookings</h1>
 
       {bookings.length === 0 ? (
         <div className="flex flex-col items-center justify-center mt-20">

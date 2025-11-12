@@ -4,11 +4,9 @@ import { useParams, useNavigate, useLoaderData } from "react-router";
 import { toast } from "react-toastify";
 
 const UpdateCar = () => {
-
   const data = useLoaderData();
-  
-  console.log(data);
 
+  console.log(data);
 
   const { user, loading: authLoading } = useContext(AuthContext);
   const { id } = useParams();
@@ -29,25 +27,23 @@ const UpdateCar = () => {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-  if (data) {
-    setCarName(data.carName || "");
-    setDescription(data.description || "");
-    setCategory(data.category || "");
-    setRentPricePerDay(data.rentPricePerDay || "");
-    setLocation(data.location || "");
-    setHostedImageUrl(data.hostedImageUrl || "");
-    setProviderName(data.providerName || user?.displayName || "");
-    setProviderEmail(data.providerEmail || user?.email || "");
-  }
-}, [data, user]);
-
+    if (data) {
+      setCarName(data.carName || "");
+      setDescription(data.description || "");
+      setCategory(data.category || "");
+      setRentPricePerDay(data.rentPricePerDay || "");
+      setLocation(data.location || "");
+      setHostedImageUrl(data.hostedImageUrl || "");
+      setProviderName(data.providerName || user?.displayName || "");
+      setProviderEmail(data.providerEmail || user?.email || "");
+    }
+  }, [data, user]);
 
   useEffect(() => {
     if (!authLoading && !user) {
       navigate("/login");
     }
   }, [user, authLoading, navigate]);
-
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
@@ -81,7 +77,6 @@ const UpdateCar = () => {
       return;
     }
 
-
     const updatedCar = {
       carName,
       description,
@@ -92,14 +87,17 @@ const UpdateCar = () => {
     };
 
     try {
-      const response = await fetch(`http://localhost:2001/update-car/${id}`, {
-        // Your new PUT backend API endpoint
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedCar),
-      });
+      const response = await fetch(
+        `https://assigmen-10-server-side.vercel.app//update-car/${id}`,
+        {
+          // Your new PUT backend API endpoint
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updatedCar),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -109,7 +107,7 @@ const UpdateCar = () => {
       const result = await response.json();
       console.log("Car updated successfully:", result);
 
-      toast.success("Car updated successfully!", );
+      toast.success("Car updated successfully!");
       setErrors({});
       navigate("/my-listings");
     } catch (error) {

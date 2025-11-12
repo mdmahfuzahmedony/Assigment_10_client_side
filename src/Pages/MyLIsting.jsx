@@ -24,7 +24,7 @@ const MyListings = () => {
         setIsLoading(true);
         try {
           const response = await fetch(
-            `http://localhost:2001/my-cars/${user.email}`
+            `https://assigmen-10-server-side.vercel.app//my-cars/${user.email}`
           );
           if (!response.ok) {
             throw new Error("Failed to fetch cars");
@@ -52,10 +52,9 @@ const MyListings = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:2001/carProduct/${carId}`,
+        `https://assigmen-10-server-side.vercel.app//carProduct/${carId}`,
         {
           method: "DELETE",
-          
         }
       );
 
@@ -64,10 +63,10 @@ const MyListings = () => {
       }
 
       setMyCars(myCars.filter((car) => car._id !== carId));
-      toast.success("Car deleted successfully!",);
+      toast.success("Car deleted successfully!");
     } catch (error) {
       console.error("Error deleting car:", error);
-      toast.error(`Error: ${error.message || "Failed to delete car"}`, );
+      toast.error(`Error: ${error.message || "Failed to delete car"}`);
     }
   };
 

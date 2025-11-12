@@ -1,4 +1,5 @@
 import React from "react";
+import { NavLink } from "react-router";
 
 const CarCtaSection = () => {
   return (
@@ -15,8 +16,8 @@ const CarCtaSection = () => {
 
         {/* Right Content */}
         <div>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 leading-snug">
-            Get A Fair Price For Your Car <br /> Sell To Us Today
+          <h2 className="text-3xl md:text-3xl font-black text-white mb-4 leading-snug">
+            Get A Fair Price For Your Car <br /> <span className="text-blue-500">Sell To Us Today</span> 
           </h2>
           <p className="text-gray-400 mb-6 text-[17px] leading-relaxed">
             We are committed to providing our customers with exceptional
@@ -44,7 +45,7 @@ const CarCtaSection = () => {
             </li>
           </ul>
 
-          <button className="inline-flex items-center gap-2 bg-blue-600 text-white font-semibold px-6 py-3 rounded-l-2xl rounded-b-2xl hover:bg-blue-700 transition-all">
+          <NavLink to={"/browsecars"} className="inline-flex items-center gap-2 bg-blue-600 text-white font-semibold px-6 py-3 rounded-l-2xl rounded-b-2xl hover:bg-blue-700 transition-all">
             Get Started
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -60,7 +61,7 @@ const CarCtaSection = () => {
                 d="M17 8l4 4m0 0l-4 4m4-4H3"
               />
             </svg>
-          </button>
+          </NavLink>
         </div>
       </div>
     </section>

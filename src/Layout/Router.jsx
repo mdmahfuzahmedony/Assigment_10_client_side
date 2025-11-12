@@ -24,7 +24,8 @@ export const router = createBrowserRouter([
       {
         path: "/home",
         Component: Home,
-        loader: () => fetch("http://localhost:2001/carProduct"),
+        loader: () =>
+          fetch("https://assigmen-10-server-side.vercel.app/carProduct"),
       },
       {
         path: "/login",
@@ -37,32 +38,57 @@ export const router = createBrowserRouter([
       {
         path: "/browsecars",
         Component: BrowseCars,
-        loader: () => fetch("http://localhost:2001/carProduct"),
+        loader: () =>
+          fetch("https://assigmen-10-server-side.vercel.app/carProduct"),
       },
       {
         path: "/cardetails/:id",
-        element: <PrivetRouter2><CarDetailsPage/></PrivetRouter2>,
+        element: (
+          <PrivetRouter2>
+            <CarDetailsPage />
+          </PrivetRouter2>
+        ),
         loader: ({ params }) =>
-          fetch(`http://localhost:2001/cardetails/${params.id}`),
+          fetch(
+            `https://assigmen-10-server-side.vercel.app/cardetails/${params.id}`
+          ),
       },
       {
         path: "/add-car",
 
-        element: <PrivetRouter2><AddCars/></PrivetRouter2>,
+        element: (
+          <PrivetRouter2>
+            <AddCars />
+          </PrivetRouter2>
+        ),
       },
       {
         path: "/my-listings",
-        element: <PrivetRouter2><MyLIsting/></PrivetRouter2>,
+        element: (
+          <PrivetRouter2>
+            <MyLIsting />
+          </PrivetRouter2>
+        ),
       },
       {
         path: "/my-bookings",
-        element: <PrivetRouter2><MyBookings/></PrivetRouter2>,
+        element: (
+          <PrivetRouter2>
+            <MyBookings />
+          </PrivetRouter2>
+        ),
       },
       {
         path: "/update_car/:id",
-        element: <PrivetRouter2><UpdateCar/></PrivetRouter2>,
+        element: (
+          <PrivetRouter2>
+            <UpdateCar />
+          </PrivetRouter2>
+        ),
         loader: ({ params }) =>
-          fetch(`http://localhost:2001/cardetails/${params.id}`),
+          fetch(
+            `https://assigmen-10-server-side.vercel.app//cardetails/${params.id}`
+          ),
       },
     ],
   },

@@ -64,11 +64,14 @@ const CarDetailsPage = () => {
 
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:2001/bookings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(bookingInfo),
-      });
+      const res = await fetch(
+        "https://assigmen-10-server-side.vercel.app//bookings",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(bookingInfo),
+        }
+      );
 
       if (res.ok) {
         toast.success("✅ Booking successful!");
@@ -83,7 +86,6 @@ const CarDetailsPage = () => {
       setLoading(false);
     }
   };
-
 
   return (
     <section className="min-h-screen max-w-[1200px] mx-auto my-30 py-16 md:py-24 text-white">

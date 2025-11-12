@@ -70,14 +70,17 @@ const AddCar = () => {
     console.log("Car data to submit:", carData);
 
     try {
-      const response = await fetch("http://localhost:2001/add-car", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          // Authorization: `Bearer ${user.accessToken}` // If you have auth
-        },
-        body: JSON.stringify(carData),
-      });
+      const response = await fetch(
+        "https://assigmen-10-server-side.vercel.app//add-car",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            // Authorization: `Bearer ${user.accessToken}` // If you have auth
+          },
+          body: JSON.stringify(carData),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -87,7 +90,7 @@ const AddCar = () => {
       const result = await response.json();
       console.log("Car added successfully:", result);
 
-      toast.success("Car added successfully!", );
+      toast.success("Car added successfully!");
 
       // Clear all form fields after success
       setCarName("");
