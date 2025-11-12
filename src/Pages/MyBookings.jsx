@@ -27,9 +27,9 @@ const MyBookings = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-6 min-h-screen bg-[#0f1124] text-white">
+    <div className="max-w-6xl mx-auto p-6 min-h-screen bg-[#0f1124] text-white mt-30 mb-20">
       <h1 className="text-3xl font-bold text-center mb-8">
-        🚗 My Bookings
+      My Bookings
       </h1>
 
       {bookings.length === 0 ? (

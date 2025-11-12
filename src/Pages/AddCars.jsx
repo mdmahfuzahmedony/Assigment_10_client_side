@@ -54,7 +54,6 @@ const AddCar = () => {
     }
 
     // If no errors, proceed with submission
-    const loadingToastId = toast.loading("Adding car...");
 
     const carData = {
       carName, // Shorthand for carName: carName
@@ -88,7 +87,7 @@ const AddCar = () => {
       const result = await response.json();
       console.log("Car added successfully:", result);
 
-      toast.success("Car added successfully!", { id: loadingToastId });
+      toast.success("Car added successfully!", );
 
       // Clear all form fields after success
       setCarName("");
@@ -101,9 +100,7 @@ const AddCar = () => {
       navigate("/my-listings");
     } catch (error) {
       console.error("Error adding car:", error);
-      toast.error(`Error: ${error.message || "Failed to add car"}`, {
-        id: loadingToastId,
-      });
+      toast.error(`Error: ${error.message || "Failed to add car"}`);
     }
   };
 

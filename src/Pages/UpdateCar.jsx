@@ -1,15 +1,19 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../AuthProvider/Authprovider";
-import { useParams, useNavigate } from "react-router"; // useParams for ID, useNavigate for redirection
+import { useParams, useNavigate, useLoaderData } from "react-router";
 import { toast } from "react-toastify";
 
-
 const UpdateCar = () => {
-  const { user, loading: authLoading } = useContext(AuthContext); // authLoading to distinguish
-  const { id } = useParams(); // Get car ID from URL
+
+  const data = useLoaderData();
+  
+  console.log(data);
+
+
+  const { user, loading: authLoading } = useContext(AuthContext);
+  const { id } = useParams();
   const navigate = useNavigate();
 
-  // State for form fields (initialized with empty strings)
   const [carName, setCarName] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
@@ -21,68 +25,33 @@ const UpdateCar = () => {
   const [providerName, setProviderName] = useState("");
   const [providerEmail, setProviderEmail] = useState("");
 
-  const [isLoading, setIsLoading] = useState(true); // Loading state for fetching car data
-  const [errors, setErrors] = useState({}); // State for validation errors
+  // const [isLoading, setIsLoading] = useState(true);
+  const [errors, setErrors] = useState({});
 
-  // Redirect if user is not logged in
+  useEffect(() => {
+  if (data) {
+    setCarName(data.carName || "");
+    setDescription(data.description || "");
+    setCategory(data.category || "");
+    setRentPricePerDay(data.rentPricePerDay || "");
+    setLocation(data.location || "");
+    setHostedImageUrl(data.hostedImageUrl || "");
+    setProviderName(data.providerName || user?.displayName || "");
+    setProviderEmail(data.providerEmail || user?.email || "");
+  }
+}, [data, user]);
+
+
   useEffect(() => {
     if (!authLoading && !user) {
       navigate("/login");
     }
   }, [user, authLoading, navigate]);
 
-  // Fetch car data to pre-fill the form
-  useEffect(() => {
-    const fetchCarData = async () => {
-      if (!user && !authLoading) { // Ensure user is loaded before fetching if private route
-        setIsLoading(false);
-        return;
-      }
-      if (id) {
-        setIsLoading(true);
-        try {
-          const response = await fetch(`http://localhost:2001/cardetails/${id}`); // Existing API to get single car
-          if (!response.ok) {
-            throw new Error("Failed to fetch car data");
-          }
-          const carData = await response.json();
 
-          // Check if the logged-in user is the actual provider of this car
-          if (user?.email && carData.providerEmail !== user.email) {
-            toast.error("You are not authorized to edit this car.");
-            navigate("/my-listings"); // Redirect unauthorized users
-            return;
-          }
-
-          // Pre-fill form states
-          setCarName(carData.carName || "");
-          setDescription(carData.description || "");
-          setCategory(carData.category || "");
-          setRentPricePerDay(carData.rentPricePerDay || "");
-          setLocation(carData.location || "");
-          setHostedImageUrl(carData.hostedImageUrl || "");
-          setProviderName(carData.providerName || user?.displayName || ""); // Fallback for provider name
-          setProviderEmail(carData.providerEmail || user?.email || ""); // Fallback for provider email
-        } catch (error) {
-          console.error("Error fetching car for update:", error);
-          toast.error("Could not load car data for update.");
-          navigate("/my-listings"); // Redirect on error
-        } finally {
-          setIsLoading(false);
-        }
-      } else {
-        setIsLoading(false); // No ID, so stop loading
-      }
-    };
-
-    fetchCarData();
-  }, [id, user, authLoading, navigate]); // Rerun if ID, user, or authLoading changes
-
-  // Handle form submission
   const handleFormSubmit = async (e) => {
     e.preventDefault();
 
-    // Manual Validation
     const newErrors = {};
     if (!carName) newErrors.carName = "Car Name is required";
     if (!description) {
@@ -103,6 +72,8 @@ const UpdateCar = () => {
       newErrors.hostedImageUrl = "Please enter a valid URL";
     }
 
+    console.log("Updating car with ID:", id);
+
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length > 0) {
@@ -110,7 +81,6 @@ const UpdateCar = () => {
       return;
     }
 
-    const loadingToastId = toast.loading("Updating car...");
 
     const updatedCar = {
       carName,
@@ -119,16 +89,14 @@ const UpdateCar = () => {
       rentPricePerDay: parseFloat(rentPricePerDay),
       location,
       hostedImageUrl,
-      // providerName and providerEmail should not be sent for update, as they are read-only.
-      // The backend will ensure they are not modified.
     };
 
     try {
-      const response = await fetch(`http://localhost:2001/update-car/${id}`, { // Your new PUT backend API endpoint
-        method: "PUT", // Use PUT for updating entire resource
+      const response = await fetch(`http://localhost:2001/update-car/${id}`, {
+        // Your new PUT backend API endpoint
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          // Authorization: `Bearer ${user.accessToken}` // If you have auth
         },
         body: JSON.stringify(updatedCar),
       });
@@ -141,18 +109,16 @@ const UpdateCar = () => {
       const result = await response.json();
       console.log("Car updated successfully:", result);
 
-      toast.success("Car updated successfully!", { id: loadingToastId });
-      setErrors({}); // Clear any previous errors
-      navigate("/my-listings"); // Redirect back to My Listings page
+      toast.success("Car updated successfully!", );
+      setErrors({});
+      navigate("/my-listings");
     } catch (error) {
       console.error("Error updating car:", error);
-      toast.error(`Error: ${error.message || "Failed to update car"}`, {
-        id: loadingToastId,
-      });
+      toast.error(`Error: ${error.message || "Failed to update car"}`);
     }
   };
 
-  if (authLoading || isLoading) {
+  if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <span className="loading loading-spinner loading-lg text-blue-600"></span>
@@ -168,7 +134,6 @@ const UpdateCar = () => {
       </div>
     );
   }
-
 
   return (
     <div className="min-h-screen  flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 mt-25 mb-10">
@@ -193,6 +158,7 @@ const UpdateCar = () => {
             </label>
             <input
               type="text"
+              defaultValue={data.carName}
               id="carName"
               value={carName}
               onChange={(e) => setCarName(e.target.value)}
@@ -206,7 +172,6 @@ const UpdateCar = () => {
             )}
           </div>
 
-          {/* Description */}
           <div>
             <label
               htmlFor="description"
@@ -229,7 +194,6 @@ const UpdateCar = () => {
             )}
           </div>
 
-          {/* Category */}
           <div>
             <label
               htmlFor="category"
@@ -257,7 +221,6 @@ const UpdateCar = () => {
             )}
           </div>
 
-          {/* Rent Price (per day) */}
           <div>
             <label
               htmlFor="rentPricePerDay"
@@ -283,11 +246,10 @@ const UpdateCar = () => {
             )}
           </div>
 
-          {/* Location */}
           <div>
             <label
               htmlFor="location"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-gray-200 mb-4"
             >
               Location
             </label>
@@ -306,11 +268,10 @@ const UpdateCar = () => {
             )}
           </div>
 
-          {/* Hosted Image URL */}
           <div>
             <label
               htmlFor="hostedImageUrl"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-gray-200 mb-4"
             >
               Hosted Image URL (Unsplash, Google, etc.)
             </label>
@@ -329,49 +290,52 @@ const UpdateCar = () => {
                 {errors.hostedImageUrl}
               </p>
             )}
-             {hostedImageUrl && ( // Show image preview
+            {hostedImageUrl && (
               <div className="mt-4">
-                <p className="text-sm font-medium text-gray-700 mb-2">Current Image Preview:</p>
-                <img src={hostedImageUrl} alt="Car Preview" className="max-w-full h-48 object-contain rounded-md border border-gray-300" />
+                <p className="text-sm font-medium text-gray-200 mb-2">
+                  Current Image Preview:
+                </p>
+                <img
+                  src={hostedImageUrl}
+                  alt="Car Preview"
+                  className="max-w-full h-48 object-contain rounded-md border border-gray-300"
+                />
               </div>
             )}
           </div>
 
-          {/* Provider Name (Read-only) */}
           <div>
             <label
               htmlFor="providerName"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-gray-200 mb-4"
             >
               Provider Name
             </label>
             <input
               type="text"
               id="providerName"
-              value={providerName} // Display fetched provider name
+              value={providerName}
               readOnly
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 bg-gray-100 rounded-md shadow-sm cursor-not-allowed"
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm cursor-not-allowed"
             />
           </div>
 
-          {/* Provider Email (Read-only) */}
           <div>
             <label
               htmlFor="providerEmail"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-gray-200 mb-4"
             >
               Provider Email
             </label>
             <input
               type="email"
               id="providerEmail"
-              value={providerEmail} // Display fetched provider email
+              value={providerEmail}
               readOnly
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 bg-gray-100 rounded-md shadow-sm cursor-not-allowed"
+              className="mt-1 block text-white w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm cursor-not-allowed"
             />
           </div>
 
-          {/* Submit Button */}
           <div>
             <button
               type="submit"

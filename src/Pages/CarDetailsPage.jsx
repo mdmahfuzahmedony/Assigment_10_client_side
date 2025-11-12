@@ -9,6 +9,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { useLoaderData, useNavigate } from "react-router";
+import { toast } from "react-toastify";
 
 const CarDetailsPage = () => {
   const data = useLoaderData();
@@ -70,20 +71,19 @@ const CarDetailsPage = () => {
       });
 
       if (res.ok) {
-        alert("✅ Booking successful!");
+        toast.success("✅ Booking successful!");
         navigate("/my-bookings");
       } else {
-        alert("❌ Failed to create booking. Try again!");
+        toast.error("❌ Failed to create booking. Try again!");
       }
     } catch (error) {
       console.error("Error creating booking:", error);
-      alert("⚠️ Something went wrong!");
+      toast.error("⚠️ Something went wrong!");
     } finally {
       setLoading(false);
     }
   };
 
-  // ==============================================
 
   return (
     <section className="min-h-screen max-w-[1200px] mx-auto my-30 py-16 md:py-24 text-white">

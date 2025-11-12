@@ -10,6 +10,7 @@ import AddCars from "../Pages/AddCars";
 import MyLIsting from "../Pages/MyLIsting";
 import MyBookings from "../Pages/MyBookings";
 import UpdateCar from "../Pages/UpdateCar";
+import PrivetRouter2 from "../Pages/PrivetRouter2";
 
 export const router = createBrowserRouter([
   {
@@ -23,7 +24,7 @@ export const router = createBrowserRouter([
       {
         path: "/home",
         Component: Home,
-        loader:()=>fetch("http://localhost:2001/carProduct")
+        loader: () => fetch("http://localhost:2001/carProduct"),
       },
       {
         path: "/login",
@@ -34,32 +35,35 @@ export const router = createBrowserRouter([
         Component: Register,
       },
       {
-        path:"/browsecars",
-        Component:BrowseCars,
-        loader:() =>fetch("http://localhost:2001/carProduct")
+        path: "/browsecars",
+        Component: BrowseCars,
+        loader: () => fetch("http://localhost:2001/carProduct"),
       },
       {
-        path:"/cardetails/:id",
-        Component:CarDetailsPage,
-        loader:({params})=>fetch(`http://localhost:2001/cardetails/${params.id}`)
+        path: "/cardetails/:id",
+        element: <PrivetRouter2><CarDetailsPage/></PrivetRouter2>,
+        loader: ({ params }) =>
+          fetch(`http://localhost:2001/cardetails/${params.id}`),
+      },
+      {
+        path: "/add-car",
 
+        element: <PrivetRouter2><AddCars/></PrivetRouter2>,
       },
       {
-        path:"/add-car",
-        Component:AddCars,
-      },{
-        path:"/my-listings",
-        Component:MyLIsting
+        path: "/my-listings",
+        element: <PrivetRouter2><MyLIsting/></PrivetRouter2>,
       },
       {
-        path:"/my-bookings",
-        Component:MyBookings
+        path: "/my-bookings",
+        element: <PrivetRouter2><MyBookings/></PrivetRouter2>,
       },
       {
-        path:"/update_car",
-        Component:UpdateCar
-      }
-     
+        path: "/update_car/:id",
+        element: <PrivetRouter2><UpdateCar/></PrivetRouter2>,
+        loader: ({ params }) =>
+          fetch(`http://localhost:2001/cardetails/${params.id}`),
+      },
     ],
   },
 ]);
