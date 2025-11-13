@@ -57,7 +57,7 @@ const CarDetailsPage = () => {
         try {
           // Changed the endpoint to match the server-side update
           const res = await fetch(
-            `http://https://assigmen-10-server-side.vercel.app/bookings/user/${user.email}`
+            `https://assigmen-10-server-side.vercel.app/bookings/user/${user.email}`
           );
           if (!res.ok) {
             const errorText = await res.text();
@@ -127,7 +127,7 @@ const CarDetailsPage = () => {
     setLoading(true);
     try {
       const res = await fetch(
-        "http://https://assigmen-10-server-side.vercel.app/bookings",
+        "https://assigmen-10-server-side.vercel.app/bookings",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

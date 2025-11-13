@@ -22,7 +22,7 @@ const Home = () => {
       setErrorLoadingCars(false);
       try {
         const response = await fetch(
-          "http://assigmen-10-server-side.vercel.app/carProduct"
+          "https://assigmen-10-server-side.vercel.app/carProduct"
         );
         if (!response.ok) {
           throw new Error("Failed to fetch car products");

@@ -10,7 +10,7 @@ const TestimonialSection = () => {
     const fetchTestimonials = async () => {
       try {
         const response = await fetch(
-          "http://assigmen-10-server-side.vercel.app/testimonial"
+          "https://assigmen-10-server-side.vercel.app/testimonial"
         );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);

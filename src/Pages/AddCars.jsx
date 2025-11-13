@@ -71,7 +71,7 @@ const AddCar = () => {
 
     try {
       const response = await fetch(
-        "http://assigmen-10-server-side.vercel.app/add-car",
+        "https://assigmen-10-server-side.vercel.app/add-car",
         {
           method: "POST",
           headers: {
