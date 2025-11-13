@@ -16,7 +16,7 @@ const Navbar = () => {
   };
 
   const [open, setOpen] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(() => {
+  const [isDarkMode] = useState(() => {
     // Initialize dark mode from localStorage or default to false
     const savedTheme = localStorage.getItem("theme");
     return savedTheme === "dark";
@@ -36,10 +36,6 @@ const Navbar = () => {
       localStorage.setItem("theme", "light");
     }
   }, [isDarkMode]);
-
-  const handleToggleTheme = () => {
-    setIsDarkMode((prevMode) => !prevMode);
-  };
 
   const handleToggle = () => {
     setOpen(!open);
@@ -78,35 +74,50 @@ const Navbar = () => {
 
   const navLinks = (
     <>
-      <li>
-        <Link to="/" className="font-semibold">
-          Home
-        </Link>
-      </li>
-      <li>
-        <Link to="/browsecars" className="font-semibold">
-          Browse Cars
-        </Link>
-      </li>
-      {user && (
-        <>
+      <div className="flex justify-center items-center ">
+        <div className="flex">
           <li>
-            <Link to="/add-car" className="font-semibold">
-              Add Car
+            <Link to="/" className="font-semibold">
+              Home
             </Link>
           </li>
           <li>
-            <Link to="/my-listings" className="font-semibold">
-              My Listings
+            <Link to="/browsecars" className="font-semibold">
+              Browse Cars
             </Link>
           </li>
-          <li>
-            <Link to="/my-bookings" className="font-semibold">
-              My Bookings
-            </Link>
-          </li>
-        </>
-      )}
+          {user && (
+            <>
+              <li>
+                <Link to="/add-car" className="font-semibold">
+                  Add Car
+                </Link>
+              </li>
+              <li>
+                <Link to="/my-listings" className="font-semibold">
+                  My Listings
+                </Link>
+              </li>
+              <li>
+                <Link to="/my-bookings" className="font-semibold">
+                  My Bookings
+                </Link>
+              </li>
+            </>
+          )}
+        </div>
+
+        <div>
+          <div className="navbar">
+            <input
+              onChange={(e) => handleTheme(e.target.checked)}
+              type="checkbox"
+              defaultChecked={localStorage.getItem("theme") === "dark"}
+              className="toggle"
+            />
+          </div>
+        </div>
+      </div>
     </>
   );
 
@@ -158,7 +169,6 @@ const Navbar = () => {
             {navLinks}
           </ul>
 
-
           {user ? (
             <div className="relative ml-3" ref={dropdownRef}>
               <img
@@ -198,26 +208,14 @@ const Navbar = () => {
                       </p>
                     </div>
 
-                  <div className="flex justify-between items-center">
-                      <div className="navbar">
-                      <input
-                        onChange={(e) => handleTheme(e.target.checked)}
-                        type="checkbox"
-                        defaultChecked={
-                          localStorage.getItem("theme") === "dark"
-                        }
-                        className="toggle"
-                      />
+                    <div className="flex justify-center items-center">
+                      <button
+                        onClick={handleLogout}
+                        className="text-center px-2 py-1 text-red-700 hover:bg-red-50 rounded dark:text-red-400 dark:hover:bg-gray-600"
+                      >
+                        Logout
+                      </button>
                     </div>
-                     <button
-                      onClick={handleLogout}
-                      className="text-center px-2 py-1 text-red-700 hover:bg-red-50 rounded dark:text-red-400 dark:hover:bg-gray-600"
-                    >
-                      Logout
-                    </button>
-                  </div>
-
-                   
                   </div>
                 </div>
               )}
@@ -229,7 +227,7 @@ const Navbar = () => {
                 className="btn btn-primary bg-blue-500 hover:bg-blue-600 border-none text-white"
               >
                 Login
-              </Link> 
+              </Link>
               <Link
                 to="/register"
                 className="btn btn-primary bg-blue-500 hover:bg-blue-600 border-none text-white"
