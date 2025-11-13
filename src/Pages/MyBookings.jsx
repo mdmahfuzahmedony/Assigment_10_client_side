@@ -6,7 +6,7 @@ const MyBookings = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetch("https://assigmen-10-server-side.vercel.app/bookings")
+    fetch("http://https://assigmen-10-server-side.vercel.app/bookings")
       .then((res) => res.json())
       .then((data) => {
         setBookings(data);
@@ -62,7 +62,6 @@ const MyBookings = () => {
                   ${booking.rentPrice}
                 </span>
               </p>
-            
             </div>
           ))}
         </div>

@@ -1,7 +1,42 @@
 import React from "react";
-import { Link, NavLink } from 'react-router';
+import { Link, NavLink } from 'react-router'; 
+import { toast } from 'react-toastify'; 
 
 const CallToAction = () => {
+  const phoneNumber = "01309834483";
+
+  const handleCallUsClick = () => {
+    toast.info(
+      <div className="flex flex-col items-center">
+        <p className="mb-2">Do you want to call us?</p>
+        <div className="flex gap-4">
+          <button
+            onClick={() => {
+              window.open(`tel:${phoneNumber}`, "_self"); 
+              toast.dismiss(); 
+            }}
+            className="btn btn-sm btn-success"
+          >
+            Yes, Call Now
+          </button>
+          <button
+            onClick={() => toast.dismiss()} 
+            className="btn btn-sm btn-error"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>,
+      {
+        autoClose: false, 
+        closeButton: false,
+        draggable: false, 
+        closeOnClick: false, 
+        position: "top-center", 
+      }
+    );
+  };
+
   return (
     <section className="py-16 md:py-24 bg-gray-100 dark:bg-gray-800">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -21,7 +56,11 @@ const CallToAction = () => {
               <NavLink to={"/browsecars"} className="flex items-center justify-center px-8 py-4 bg-white text-blue-700 font-semibold rounded-full shadow-lg hover:bg-gray-100 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300">
                 <span className="mr-2 text-2xl">🚚</span> Find Your Car
               </NavLink>
-              <button className="flex items-center justify-center px-8 py-4 border-2 border-white bg-blue-700 text-white font-semibold rounded-full shadow-lg hover:bg-blue-800 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300">
+
+              <button
+                onClick={handleCallUsClick} 
+                className="flex items-center justify-center px-8 py-4 border-2 border-white bg-blue-700 text-white font-semibold rounded-full shadow-lg hover:bg-blue-800 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300"
+              >
                 <span className="mr-2 text-2xl">📞</span> Contact Us
               </button>
             </div>

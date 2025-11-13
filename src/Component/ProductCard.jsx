@@ -1,34 +1,40 @@
 import React from "react";
-import { NavLink } from "react-router"; // Changed to react-router-dom for NavLink
-import { motion } from "framer-motion";
-import { Tooltip } from 'react-tooltip';
-import 'react-tooltip/dist/react-tooltip.css';
+import { NavLink } from "react-router"; 
+
+import { Tooltip } from "react-tooltip";
+import "react-tooltip/dist/react-tooltip.css";
+import { motion } from 'framer-motion';
 
 const ProductCard = ({ car }) => {
-  // Destructure properties based on the NEW data format
+
   const {
     _id,
-    carName, // This is now 'carName'
-    rentPricePerDay, // This is now 'rentPricePerDay'
-    category, // Assuming 'Car Type / Model' is now 'category'
+    carName,
+    rentPricePerDay,
+    category,
     providerName,
-    hostedImageUrl, // This is now 'hostedImageUrl'
-    location, // New field to display if desired
+    hostedImageUrl,
+    location,
   } = car;
 
-  // No special handling needed for rentPrice if it's consistently a number now
-  // If `rentPricePerDay` can sometimes be an object like { "$numberInt": "123" },
-  // you might re-introduce similar logic, but assuming it's a number now.
   const displayRentPrice = rentPricePerDay;
 
   const cardVariants = {
     hidden: { opacity: 0, y: 50 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
-    hover: { scale: 1.03, boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.2)", zIndex: 1 } // Slightly increased scale on hover for a subtle pop
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6, ease: "easeOut" },
+    },
+    hover: {
+      scale: 1.03,
+      boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.2)",
+      zIndex: 1,
+    },
   };
 
   const imageVariants = {
-    hover: { scale: 1.1 }
+    hover: { scale: 1.1 },
   };
 
   return (
@@ -39,13 +45,11 @@ const ProductCard = ({ car }) => {
       initial="hidden"
       animate="visible"
       whileHover="hover"
-      // You can add `viewport={{ once: true, amount: 0.8 }}` here if you want
-      // the animation to trigger only when the card comes into view.
     >
-      {hostedImageUrl && ( // Use hostedImageUrl for the image source
+      {hostedImageUrl && (
         <div className="w-full h-40 overflow-hidden">
           <motion.img
-            src={hostedImageUrl} // Use hostedImageUrl here
+            src={hostedImageUrl}
             alt={carName}
             className="w-full h-full object-cover"
             variants={imageVariants}
@@ -70,12 +74,12 @@ const ProductCard = ({ car }) => {
             / day
           </p>
           <p>
-            Type: <span className="font-semibold text-blue-400">{category}</span>{" "}
-            {/* Using 'category' here */}
+            Type:{" "}
+            <span className="font-semibold text-blue-400">{category}</span>{" "}
           </p>
         </div>
 
-        {location && ( // Optionally display location if it exists
+        {location && (
           <p className="text-gray-500 text-sm mb-2 font-bold">
             Location:{" "}
             <span className="font-normal text-blue-400">{location}</span>

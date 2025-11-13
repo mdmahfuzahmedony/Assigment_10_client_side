@@ -17,7 +17,7 @@ export const router = createBrowserRouter([
   {
     path: "/",
     Component: MainRouter,
-    errorElement:<ErrorPage></ErrorPage>,
+    errorElement: <ErrorPage></ErrorPage>,
     children: [
       {
         index: true,
@@ -26,8 +26,8 @@ export const router = createBrowserRouter([
       {
         path: "/home",
         Component: Home,
-        // loader: () =>
-        //   fetch("https://assigmen-10-server-side.vercel.app/carProduct"),
+        // loader: () =>http://https://assigmen-10-server-side.vercel.app
+        //   fetch("http://https://assigmen-10-server-side.vercel.app/carProduct"),
       },
       {
         path: "/login",
@@ -52,7 +52,7 @@ export const router = createBrowserRouter([
         ),
         loader: ({ params }) =>
           fetch(
-            `https://assigmen-10-server-side.vercel.app/cardetails/${params.id}`
+            `http://assigmen-10-server-side.vercel.app/cardetails/${params.id}`
           ),
       },
       {
@@ -89,7 +89,7 @@ export const router = createBrowserRouter([
         ),
         loader: ({ params }) =>
           fetch(
-            `https://assigmen-10-server-side.vercel.app/cardetails/${params.id}`
+            `http://assigmen-10-server-side.vercel.app/cardetails/${params.id}`
           ),
       },
     ],

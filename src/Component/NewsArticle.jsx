@@ -10,7 +10,7 @@ const NewsAndArticles = () => {
     const fetchArticles = async () => {
       try {
         const response = await fetch(
-          "https://assigmen-10-server-side.vercel.app/newsandarticle"
+          "http://assigmen-10-server-side.vercel.app/newsandarticle"
         );
 
         if (!response.ok) {

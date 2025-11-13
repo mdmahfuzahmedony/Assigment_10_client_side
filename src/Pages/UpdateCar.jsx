@@ -88,7 +88,7 @@ const UpdateCar = () => {
 
     try {
       const response = await fetch(
-        `https://assigmen-10-server-side.vercel.app/update-car/${id}`,
+        `https://https://assigmen-10-server-side.vercel.app/update-car/${id}`,
         {
           // Your new PUT backend API endpoint
           method: "PUT",

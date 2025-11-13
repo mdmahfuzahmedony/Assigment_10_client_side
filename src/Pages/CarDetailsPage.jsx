@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react"; // useEffect এবং useContext যোগ করুন
+import React, { useEffect, useState, useContext } from "react";
 import {
   MapPin,
   Tag,
@@ -8,35 +8,33 @@ import {
   CheckCircle,
   XCircle,
 } from "lucide-react";
-import { useLoaderData, useNavigate } from "react-router"; // react-router-dom ব্যবহার করুন
+import { useLoaderData, useNavigate } from "react-router"; // Changed to 'react-router-dom'
 import { toast } from "react-toastify";
-import { AuthContext } from "../AuthProvider/Authprovider"; // AuthContext ইম্পোর্ট করুন
+import { AuthContext } from "../AuthProvider/Authprovider";
 
 const CarDetailsPage = () => {
   const data = useLoaderData();
+  // console.log(data); // Can remove this console.log if not needed for debugging
   const navigate = useNavigate();
-  const { user } = useContext(AuthContext); // AuthContext থেকে user ডেটা নিন
+  const { user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
-  const [isCarBookedByUser, setIsCarBookedByUser] = useState(false); // নতুন স্টেট: গাড়িটি ইউজার বুক করেছে কিনা
-  const [bookingStatusLoading, setBookingStatusLoading] = useState(true); // বুকিং স্ট্যাটাস লোড হচ্ছে কিনা
+  const [isCarBookedByUser, setIsCarBookedByUser] = useState(false);
+  const [bookingStatusLoading, setBookingStatusLoading] = useState(true); // Default to true as we need to check
 
   const {
-    _id: carId, // গাড়ির ID নিন
-    "Car Name": carName,
-    "Rent Price (per day)": rentPrice,
-    "Car Type / Model": carType,
-    "Provider Name": providerName,
+    _id: carId,
+    carName,
+    rentPricePerDay,
+    category,
+    providerName,
     providerEmail,
-    image: carImage,
+    hostedImageUrl: carImage,
     description,
     location,
     status,
-  } = data || {};
+  } = data || {}; // Added default empty object for safety
 
-  const displayRentPrice =
-    typeof rentPrice === "object" && rentPrice?.$numberInt
-      ? rentPrice.$numberInt
-      : rentPrice;
+  const displayRentPrice = Number(rentPricePerDay) || 0;
 
   const descriptionText =
     description ||
@@ -44,46 +42,59 @@ const CarDetailsPage = () => {
   const locationText = location || "Central City, USA";
   const statusText = status || "available";
 
-  // optional provider email
   const finalProviderEmail =
     providerEmail ||
-    "contact@" + providerName?.toLowerCase().replace(/\s/g, "") + ".com";
+    "contact@" +
+      (providerName?.toLowerCase().replace(/\s/g, "") || "unknown") +
+      ".com";
 
-  // ==============================================
-  // ✅ চেক করুন ইউজার এই গাড়িটি আগে বুক করেছে কিনা
-  // ==============================================
+  // --- START FIXED USEEFFECT ---
   useEffect(() => {
     const checkIfBooked = async () => {
+      // Ensure both user email and carId are available before making the fetch call
       if (user?.email && carId) {
+        setBookingStatusLoading(true); // Start loading when checking status
         try {
-          // আপনার বুকিং API থেকে ইউজারের বুকিংগুলো আনুন
+          // Changed the endpoint to match the server-side update
           const res = await fetch(
-            `https://assigmen-10-server-side.vercel.app/bookings?userEmail=${user.email}`
+            `http://https://assigmen-10-server-side.vercel.app/bookings/user/${user.email}`
           );
+          if (!res.ok) {
+            const errorText = await res.text();
+            throw new Error(
+              `Failed to fetch user bookings: ${res.status} ${errorText}`
+            );
+          }
           const userBookings = await res.json();
 
-          // এই গাড়ির ID ব্যবহার করে দেখুন ইউজার এটি বুক করেছে কিনা
-          const booked = userBookings.some((booking) => booking.carId === carId);
+          // Check if any of the fetched bookings match the current carId and userEmail
+          const booked = userBookings.some(
+            (booking) =>
+              booking.carId === carId && booking.userEmail === user.email
+          );
           setIsCarBookedByUser(booked);
         } catch (error) {
           console.error("Error checking booking status:", error);
-          toast.error("⚠️ Failed to check booking status.");
+          toast.error("⚠️ Failed to check booking status. Please try again.");
+          setIsCarBookedByUser(false); // Assume not booked on error
         } finally {
-          setBookingStatusLoading(false);
+          setBookingStatusLoading(false); // Stop loading regardless of success or failure
         }
       } else {
-        setBookingStatusLoading(false); // যদি ইউজার লগইন না থাকে বা carId না থাকে
+        setIsCarBookedByUser(false);
+        setBookingStatusLoading(false);
       }
     };
 
-    checkIfBooked();
-  }, [user, carId]); // user বা carId পরিবর্তিত হলে আবার চেক করুন
+    if (carId) {
+      checkIfBooked();
+    } else {
+      setBookingStatusLoading(false);
+    }
+  }, [user?.email, carId]); // Dependency array: Re-run if user.email or carId changes
+  // --- END FIXED USEEFFECT ---
 
-  // ==============================================
-  // 🚗 BOOK NOW HANDLER
-  // ==============================================
   const handleBookNow = async () => {
-    // ⚠️ যদি গাড়িটি ইতিমধ্যেই বুক করা থাকে, তাহলে এরর দেখান
     if (isCarBookedByUser) {
       toast.error("❌ You have already booked this car.");
       return;
@@ -91,33 +102,32 @@ const CarDetailsPage = () => {
 
     if (!user) {
       toast.error("Please log in to book a car.");
-      navigate("/login"); // লগইন পেজে রিডাইরেক্ট করুন
+      navigate("/login");
       return;
     }
-    // প্রোভাইডার নিজেই নিজের গাড়ি বুক করতে পারবে না
     if (user.email === finalProviderEmail) {
       toast.error("❌ You cannot book your own car.");
       return;
     }
 
     const bookingInfo = {
-      carId, // গাড়ির ID বুকিংয়ে যোগ করুন
-      carName,
+      carId,
       carImage,
+      carName,
       rentPrice: displayRentPrice,
-      carType,
+      category,
       location: locationText,
       providerName,
       providerEmail: finalProviderEmail,
-      userEmail: user.email, // লগইন করা ইউজারের ইমেইল ব্যবহার করুন
-      date: new Date().toLocaleString(),
-      status: "pending",
+      userEmail: user.email,
+      date: new Date().toISOString(), // Use ISO string for consistent date storage
+      status: "pending", // Initial booking status
     };
 
     setLoading(true);
     try {
       const res = await fetch(
-        "https://assigmen-10-server-side.vercel.app/bookings",
+        "http://https://assigmen-10-server-side.vercel.app/bookings",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -127,29 +137,33 @@ const CarDetailsPage = () => {
 
       if (res.ok) {
         toast.success("✅ Booking successful!");
-        setIsCarBookedByUser(true); // বুকিং সফল হলে স্টেট আপডেট করুন
-        navigate("/my-bookings");
+        setIsCarBookedByUser(true); // Update state to reflect booking
+        navigate("/my-bookings"); // Redirect to user's bookings page
       } else {
-        const errorData = await res.json();
-        toast.error(`❌ Failed to create booking: ${errorData.message || 'Try again!'}`);
+        const errorData = await res.json(); // Get error message from backend
+        // Display specific error message from backend if available
+        toast.error(
+          `❌ Failed to create booking: ${
+            errorData.message || "Please try again!"
+          }`
+        );
       }
     } catch (error) {
       console.error("Error creating booking:", error);
-      toast.error("⚠️ Something went wrong!");
+      toast.error("⚠️ Something went wrong while processing your booking!");
     } finally {
       setLoading(false);
     }
   };
 
-  // বাটন ডিসেবল করার কন্ডিশন
+  // Button logic
   const isDisabled =
     loading ||
-    bookingStatusLoading || // বুকিং স্ট্যাটাস লোড হওয়া পর্যন্ত ডিসেবল
+    bookingStatusLoading || // Disable while checking booking status
     statusText !== "available" ||
-    isCarBookedByUser || // যদি ইউজার এটি বুক করে থাকে
-    user?.email === finalProviderEmail; // যদি প্রোভাইডার নিজেই নিজের গাড়ি হয়
+    isCarBookedByUser ||
+    user?.email === finalProviderEmail;
 
-  // বাটনের টেক্সট
   let buttonText = "Book Now";
   if (loading) {
     buttonText = "Booking...";
@@ -169,7 +183,6 @@ const CarDetailsPage = () => {
     <section className="min-h-screen max-w-[1200px] mx-auto my-30 py-16 md:py-24 text-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="rounded-xl shadow-lg overflow-hidden md:flex bg-[#101228]">
-          {/* Car Image */}
           <div className="md:w-1/2 rounded-2xl">
             <img
               src={carImage}
@@ -191,7 +204,7 @@ const CarDetailsPage = () => {
                   <Tag className="h-5 w-5 mr-2 text-blue-500" />
                   <span>
                     Category:{" "}
-                    <span className="font-semibold text-white">{carType}</span>
+                    <span className="font-semibold text-white">{category}</span>
                   </span>
                 </div>
 
@@ -200,7 +213,7 @@ const CarDetailsPage = () => {
                   <span>
                     Rent Price:{" "}
                     <span className="font-semibold text-white">
-                      ${displayRentPrice}
+                      ${displayRentPrice.toFixed(2)}{" "}
                     </span>{" "}
                     / day
                   </span>
@@ -237,7 +250,6 @@ const CarDetailsPage = () => {
                 </div>
               </div>
 
-              {/* Provider Info */}
               <div className="mt-8 pt-6 border-t border-gray-700">
                 <h3 className="text-xl font-bold mb-3 text-white">
                   Provider Information
@@ -263,7 +275,6 @@ const CarDetailsPage = () => {
               </div>
             </div>
 
-            {/* Book Button */}
             <div className="mt-8">
               <button
                 onClick={handleBookNow}

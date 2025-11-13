@@ -7,7 +7,7 @@ import CarCtaSection from "../Component/CarCtaSection";
 import ProductCarouselSection from "../Component/ProductCarouselSection";
 import TestimonialSection from "../Component/TestimonialSection";
 import ProductCard from "../Component/ProductCard";
-import { NavLink } from "react-router"; // Changed to react-router-dom for NavLink
+import { NavLink } from "react-router";
 
 const Home = () => {
   const [allCars, setAllCars] = useState([]);
@@ -22,14 +22,14 @@ const Home = () => {
       setErrorLoadingCars(false);
       try {
         const response = await fetch(
-          "https://assigmen-10-server-side.vercel.app/carProduct"
+          "http://assigmen-10-server-side.vercel.app/carProduct"
         );
         if (!response.ok) {
           throw new Error("Failed to fetch car products");
         }
         const data = await response.json();
         setAllCars(data);
-        setFilteredCars(data.slice(0, 8)); // Display initial 8 cars
+        setFilteredCars(data.slice(0, 8));
       } catch (error) {
         console.error("Error fetching all cars:", error);
         setErrorLoadingCars(true);

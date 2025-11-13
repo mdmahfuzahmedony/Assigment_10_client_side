@@ -15,7 +15,7 @@ const ProductCarouselSection = () => {
       setLoadingCars(true);
       try {
         const response = await fetch(
-          "https://assigmen-10-server-side.vercel.app/carProduct"
+          "http://assigmen-10-server-side.vercel.app/carProduct"
         );
         if (!response.ok) {
           throw new Error("Failed to fetch car products");
@@ -69,7 +69,8 @@ const ProductCarouselSection = () => {
               className="relative w-full h-[500px] bg-cover bg-center"
               style={{ backgroundImage: `url(${item.hostedImageUrl})` }}
             >
-              <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+              {/* THIS IS THE CRITICAL CHANGE */}
+              {/* <div className="absolute inset-0 bg-black  bg-opacity-XX (e.g., bg-opacity-20, bg-opacity-60"></div> */}
               <div className="absolute bottom-8 left-8 text-white">
                 <h3 className="text-3xl font-bold mb-2">
                   {item.carName || "Unnamed Car"}

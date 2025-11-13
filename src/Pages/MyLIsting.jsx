@@ -23,7 +23,7 @@ const MyListings = () => {
       setIsLoading(true);
       try {
         const response = await fetch(
-          `https://assigmen-10-server-side.vercel.app/my-cars/${user.email}`
+          `http://assigmen-10-server-side.vercel.app/my-cars/${user.email}`
         );
         if (!response.ok) {
           throw new Error("Failed to fetch cars");
@@ -52,7 +52,7 @@ const MyListings = () => {
 
     try {
       const response = await fetch(
-        `https://assigmen-10-server-side.vercel.app/carProduct/${carId}`,
+        `http://assigmen-10-server-side.vercel.app/carProduct/${carId}`,
         {
           method: "DELETE",
         }
@@ -60,7 +60,9 @@ const MyListings = () => {
 
       if (!response.ok) {
         // Attempt to parse error response from backend if available
-        let errorData = await response.json().catch(() => ({ message: "Unknown error" }));
+        let errorData = await response
+          .json()
+          .catch(() => ({ message: "Unknown error" }));
         throw new Error(errorData.message || "Failed to delete car on server.");
       }
 
@@ -189,7 +191,9 @@ const MyListings = () => {
                     </td>
 
                     <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                      <div className="flex gap-4 justify-center"> {/* Centered buttons */}
+                      <div className="flex gap-4 justify-center">
+                        {" "}
+                        {/* Centered buttons */}
                         <NavLink
                           to={`/update_car/${car._id}`}
                           className="btn btn-sm btn-primary" // Added btn-sm for smaller buttons
