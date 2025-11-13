@@ -4,6 +4,7 @@ import ProductCard from "../Component/ProductCard";
 
 const BrowseCars = () => {
   const allCarData = useLoaderData();
+  console.log(allCarData);
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredCarData = allCarData?.filter((car) => {

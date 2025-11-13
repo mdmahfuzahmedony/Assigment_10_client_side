@@ -26,8 +26,8 @@ export const router = createBrowserRouter([
       {
         path: "/home",
         Component: Home,
-        loader: () =>
-          fetch("https://assigmen-10-server-side.vercel.app/carProduct"),
+        // loader: () =>
+        //   fetch("https://assigmen-10-server-side.vercel.app/carProduct"),
       },
       {
         path: "/login",
