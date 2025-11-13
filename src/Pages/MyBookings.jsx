@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 
 const MyBookings = () => {
   const [bookings, setBookings] = useState([]);
-  const [loading, setLoading] = useState(true);
+  console.log(bookings);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // ✅ Future use: Replace this URL with your actual backend endpoint
     fetch("https://assigmen-10-server-side.vercel.app/bookings")
       .then((res) => res.json())
       .then((data) => {
@@ -42,6 +42,7 @@ const MyBookings = () => {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {bookings.map((booking) => (
+            // console.log(booking)
             <div
               key={booking._id}
               className="bg-[#1a1d3b] p-5 rounded-2xl shadow-md hover:shadow-lg hover:scale-105 transition-transform duration-300"
@@ -56,14 +57,12 @@ const MyBookings = () => {
                 Date: <span className="text-gray-300">{booking.date}</span>
               </p>
               <p className="text-gray-400">
-                Price:{" "}
+                Price:
                 <span className="text-green-400 font-medium">
-                  ${booking.price}
+                  ${booking.rentPrice}
                 </span>
               </p>
-              <button className="mt-4 w-full bg-red-500 hover:bg-red-600 py-2 rounded-lg text-white font-semibold">
-                Cancel Booking
-              </button>
+            
             </div>
           ))}
         </div>

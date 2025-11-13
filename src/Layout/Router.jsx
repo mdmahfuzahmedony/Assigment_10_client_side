@@ -11,11 +11,13 @@ import MyLIsting from "../Pages/MyLIsting";
 import MyBookings from "../Pages/MyBookings";
 import UpdateCar from "../Pages/UpdateCar";
 import PrivetRouter2 from "../Pages/PrivetRouter2";
+import ErrorPage from "../Pages/ErrorPage";
 
 export const router = createBrowserRouter([
   {
     path: "/",
     Component: MainRouter,
+    errorElement:<ErrorPage></ErrorPage>,
     children: [
       {
         index: true,
