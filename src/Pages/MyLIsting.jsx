@@ -52,7 +52,7 @@ const MyListings = () => {
 
     try {
       const response = await fetch(
-        `https://assigmen-10-server-side.vercel.app//carProduct/${carId}`,
+        `https://assigmen-10-server-side.vercel.app/carProduct/${carId}`,
         {
           method: "DELETE",
         }
