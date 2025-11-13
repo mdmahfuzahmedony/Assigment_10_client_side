@@ -1,17 +1,19 @@
 import React, { useState } from "react";
-import { useLoaderData } from "react-router";
+import { useLoaderData } from "react-router"; // Changed to react-router-dom
 import ProductCard from "../Component/ProductCard";
 
 const BrowseCars = () => {
   const allCarData = useLoaderData();
-  console.log(allCarData);
+  console.log(allCarData); // This will show your new data format in the console
   const [searchTerm, setSearchTerm] = useState("");
 
+  // Update filtering logic to use 'carName'
   const filteredCarData = allCarData?.filter((car) => {
-    if (car && car["Car Name"]) {
-      return car["Car Name"].toLowerCase().includes(searchTerm.toLowerCase());
+    // Check if 'car' and 'car.carName' exist before trying to access it
+    if (car && car.carName) {
+      return car.carName.toLowerCase().includes(searchTerm.toLowerCase());
     }
-    return false;
+    return false; // If 'car' or 'carName' is missing, don't include it
   });
 
   const handleSearchChange = (event) => {
@@ -22,10 +24,9 @@ const BrowseCars = () => {
     <div className="max-w-[1400px] mx-auto mt-28 mb-10 p-4 ">
       <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 px-3 py-4 bg-base-200">
         <div className="text-2xl font-bold text-gray-800 dark:text-white">
-          Our Available Cars: {allCarData.length}
+          Our Available Cars: {allCarData?.length || 0} {/* Added optional chaining and default for safety */}
         </div>
 
-    
         <div className="w-full md:w-auto flex items-center border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm overflow-hidden">
           <input
             type="text"
@@ -53,8 +54,7 @@ const BrowseCars = () => {
         </div>
       </div>
 
-      {/* গাড়ির গ্রিড */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
         {filteredCarData && filteredCarData.length > 0 ? (
           filteredCarData.map((data) => (
             <ProductCard key={data._id} car={data}></ProductCard>

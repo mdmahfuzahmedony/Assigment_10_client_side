@@ -116,6 +116,7 @@ date-fns Usage: Display formatted dates for better readability (e.g., "Jan 15, 2
           .firebase: For user authentication (email/password, social logins) and potentially database (Firestore) or hosting.
         .Animations:
           .framer-motion: For declarative and performant animations.
+          .react-tooltip
         .Form Management:
           .react-hook-form: For efficient form handling and validation.
         .Notifications:
