@@ -19,8 +19,8 @@ const BrowseCars = () => {
   };
 
   return (
-    <div className="max-w-[1400px] mx-auto mt-28 mb-10 p-4">
-      <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+    <div className="max-w-[1400px] mx-auto mt-28 mb-10 p-4 ">
+      <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 px-3 py-4 bg-base-200">
         <div className="text-2xl font-bold text-gray-800 dark:text-white">
           Our Available Cars: {allCarData.length}
         </div>
