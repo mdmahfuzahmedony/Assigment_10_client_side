@@ -12,6 +12,7 @@ const ProductCarouselSection = () => {
   useEffect(() => {
     const fetchAllCars = async () => {
       setErrorLoadingCars(false);
+      setLoadingCars(true);
       try {
         const response = await fetch(
           "https://assigmen-10-server-side.vercel.app/carProduct"
@@ -56,7 +57,7 @@ const ProductCarouselSection = () => {
   return (
     <section className="max-w-[1400px] mx-auto p-6">
       <Swiper
-        modules={[Autoplay]}
+        modules={[Autoplay, Pagination]}
         autoplay={{ delay: 4000, disableOnInteraction: false }}
         pagination={{ clickable: true }}
         loop={true}
@@ -66,21 +67,19 @@ const ProductCarouselSection = () => {
           <SwiperSlide key={item._id}>
             <div
               className="relative w-full h-[500px] bg-cover bg-center"
-              style={{ backgroundImage: `url(${item.image})` }}
+              style={{ backgroundImage: `url(${item.hostedImageUrl})` }}
             >
               <div className="absolute inset-0 bg-black bg-opacity-40"></div>
               <div className="absolute bottom-8 left-8 text-white">
                 <h3 className="text-3xl font-bold mb-2">
-                  {item["Car Name"] || "Unnamed Car"}
+                  {item.carName || "Unnamed Car"}
                 </h3>
                 <p className="text-lg font-medium mb-1">
-                  Type: {item["Car Type / Model"]}
+                  Category: {item.category}
                 </p>
-                <p className="text-lg mb-1">
-                  Provider: {item["Provider Name"]}
-                </p>
+                <p className="text-lg mb-1">Provider: {item.providerName}</p>
                 <p className="text-xl font-semibold bg-blue-600 px-4 py-2 rounded inline-block">
-                  ${item["Rent Price (per day)"]} / day
+                  ${Number(item.rentPricePerDay).toFixed(2)} / day
                 </p>
               </div>
             </div>
