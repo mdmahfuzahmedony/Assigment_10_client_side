@@ -1,9 +1,3 @@
-
-
-
-
-
-
 # 🚗 Roam Rides Website Overview
 
 **Website Name:** Roam Rides  
