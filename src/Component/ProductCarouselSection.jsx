@@ -55,7 +55,7 @@ const ProductCarouselSection = () => {
   }
 
   return (
-    <section className="max-w-[1400px] mx-auto p-6">
+    <section className="max-w-[1500px] mx-auto p-6">
       <Swiper
         modules={[Autoplay, Pagination]}
         autoplay={{ delay: 4000, disableOnInteraction: false }}

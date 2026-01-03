@@ -12,6 +12,11 @@ import MyBookings from "../Pages/MyBookings";
 import UpdateCar from "../Pages/UpdateCar";
 import PrivetRouter2 from "../Pages/PrivetRouter2";
 import ErrorPage from "../Pages/ErrorPage";
+import Dashboard from "../Pages/Dashboard/page";
+import AddCar from "../Pages/AddCars";
+import MyProfile from "../Pages/Dashboard/MyProfile/myprofile";
+import About from "../Pages/About/About";
+import BlogPage from "../Pages/Blog/Blog";
 
 export const router = createBrowserRouter([
   {
@@ -46,52 +51,74 @@ export const router = createBrowserRouter([
       {
         path: "/cardetails/:id",
         element: (
-          <PrivetRouter2>
-            <CarDetailsPage />
-          </PrivetRouter2>
-        ),
-        loader: ({ params }) =>
-          fetch(
-            `https://assigmen-10-server-side.vercel.app/cardetails/${params.id}`
-          ),
-      },
-      {
-        path: "/add-car",
 
-        element: (
-          <PrivetRouter2>
-            <AddCars />
-          </PrivetRouter2>
-        ),
-      },
-      {
-        path: "/my-listings",
-        element: (
-          <PrivetRouter2>
-            <MyLIsting />
-          </PrivetRouter2>
-        ),
-      },
-      {
-        path: "/my-bookings",
-        element: (
-          <PrivetRouter2>
-            <MyBookings />
-          </PrivetRouter2>
-        ),
-      },
-      {
-        path: "/update_car/:id",
-        element: (
-          <PrivetRouter2>
-            <UpdateCar />
-          </PrivetRouter2>
+          <CarDetailsPage />
+
         ),
         loader: ({ params }) =>
           fetch(
             `https://assigmen-10-server-side.vercel.app/cardetails/${params.id}`
           ),
       },
+      {
+        path:"/about",
+        element: <About></About>
+
+      },
+      {
+        path:"/blogs",
+        element:<BlogPage></BlogPage>
+
+      },
+   
+
+      //dashboard route here
+
+      {
+        path: "/dashboard",
+        Component: Dashboard,
+        children: [
+
+          {
+            index: true,
+            element: (
+              <MyProfile></MyProfile>
+            ),
+          },
+          {
+            path: "add-car",
+            element: (
+              <AddCar></AddCar>
+            ),
+          },
+          {
+            path: "my-listings",
+            element: (
+              <MyLIsting />
+            ),
+          },
+          {
+            path: "my-bookings",
+            element: (
+              <MyBookings />
+            ),
+          },
+          {
+            path: "update_car/:id",
+            element: (
+              <UpdateCar />
+            ),
+            loader: ({ params }) =>
+              fetch(
+                `https://assigmen-10-server-side.vercel.app/cardetails/${params.id}`
+              ),
+          },
+
+
+        ],
+      },
+
+
     ],
   },
 ]);

@@ -58,18 +58,19 @@ const Home = () => {
     setSearchQuery(event.target.value);
   };
 
+  // লোডিং স্টেট ডার্ক মোড সাপোর্ট
   if (loadingCars) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-[#020617]">
         <span className="loading loading-spinner loading-lg text-blue-600"></span>
-        <p className="text-xl text-gray-700 ml-3">Loading cars...</p>
+        <p className="text-xl text-gray-700 dark:text-gray-300 ml-3">Loading cars...</p>
       </div>
     );
   }
 
   if (errorLoadingCars) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-[#020617]">
         <p className="text-xl text-red-500">
           Failed to load car products. Please try again later.
         </p>
@@ -78,9 +79,12 @@ const Home = () => {
   }
 
   return (
-    <div>
+    // মেইন র‍্যাপার - যা ডার্ক মোড সাপোর্ট করবে
+    <div className="bg-white dark:bg-[#020617] transition-colors duration-500">
+
+      {/* ব্যানার সেকশন - অপরিবর্তিত ডিজাইন */}
       <div
-        className="relative z-0 min-h-[700px] flex flex-col items-center justify-center p-4 "
+        className="relative z-0 min-h-[700px] flex flex-col items-center justify-center p-4"
         style={{
           backgroundImage:
             'url("https://img.freepik.com/free-photo/car-with-headlights-is-driving-through-desert_23-2151850148.jpg?t=st=1762704107~exp=1762707707~hmac=6b6ce097fb2be6592232041fc81ab2c508b860c7d80c8565617024065d6c7537&w=1060")',
@@ -97,24 +101,29 @@ const Home = () => {
             <span className="text-blue-400">Marketplace</span>
           </h1>
           <div className="mt-12 flex flex-col sm:flex-row justify-center items-center gap-5 animate-fade-in-up delay-300">
-            <button className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold py-4 px-10 rounded-full shadow-xl transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-500/50">
+            <button className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold py-4 px-10 rounded-full shadow-xl transition duration-300 transform hover:scale-105">
               Explore Our Services
             </button>
           </div>
         </div>
       </div>
 
-      <div className="max-w-[1400px] mx-auto py-20">
-        <h1 className="text-3xl text-center font-black mb-10">
-          Explore All <span className="text-blue-500">Vehicles</span>
-        </h1>
+      {/* কার লিস্ট সেকশন - ডার্ক মোড ফিক্সড */}
+      <div className="max-w-[1500px] mx-auto py-20 px-4 lg:px-0">
+        <h2 className="text-3xl text-center  md:text-5xl font-black text-slate-900 dark:text-white leading-tight">
+        Explore <span className="text-blue-500">All Cars</span>
+        </h2>
+        <p className="text-center py-2 text-gray-600 dark:text-gray-400 mb-10">
+          Find the perfect vehicle for your needs
+        </p>
 
-        <div className="border flex bg-base-200 border-base-100 justify-between items-center p-4 mb-10 rounded-lg shadow-sm">
-          <div className="flex-grow mr-4">
+        {/* সার্চ বার এরিয়া - ডার্ক মোড ফিক্সড */}
+        <div className="flex flex-col md:flex-row bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 justify-between items-center p-4 mb-10 rounded-xl shadow-sm">
+          <div className="flex-grow md:mr-4 w-full md:w-auto mb-4 md:mb-0">
             <input
               type="text"
               placeholder="Search by car name..."
-              className="w-[300px] py-3 px-4 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full md:w-[350px] py-3 px-6 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={searchQuery}
               onChange={handleSearchChange}
             />
@@ -122,27 +131,28 @@ const Home = () => {
           <div>
             <NavLink
               to={"/browsecars"}
-              className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-6 rounded-full transition duration-300"
+              className="bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 text-gray-800 dark:text-white font-bold py-3 px-8 rounded-full transition duration-300 inline-block"
             >
               More Products
             </NavLink>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+        {/* গ্রিড এরিয়া */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filteredCars.length > 0 ? (
             filteredCars.map((car) => (
-              // Ensure ProductCard can handle the new car object structure
               <ProductCard key={car._id} car={car} />
             ))
           ) : (
-            <p className="text-center text-gray-600 text-xl col-span-full">
+            <p className="text-center text-gray-600 dark:text-gray-400 text-xl col-span-full">
               No cars found matching your search.
             </p>
           )}
         </div>
       </div>
-      <ProductCarouselSection />
+
+      {/* নিচের কম্পোনেন্টগুলো */}
       <WhyChooseUs />
       <NewsAndArticles />
       <CarCtaSection />

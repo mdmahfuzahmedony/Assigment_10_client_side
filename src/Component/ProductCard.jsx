@@ -1,23 +1,16 @@
 import React from "react";
-import { NavLink } from "react-router"; 
-
-import { Tooltip } from "react-tooltip";
-import "react-tooltip/dist/react-tooltip.css";
+import { NavLink } from "react-router";
 import { motion } from 'framer-motion';
 
 const ProductCard = ({ car }) => {
-
   const {
     _id,
     carName,
-    rentPricePerDay,
     category,
     providerName,
     hostedImageUrl,
     location,
   } = car;
-
-  const displayRentPrice = rentPricePerDay;
 
   const cardVariants = {
     hidden: { opacity: 0, y: 50 },
@@ -28,7 +21,7 @@ const ProductCard = ({ car }) => {
     },
     hover: {
       scale: 1.03,
-      boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.2)",
+      boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.1)",
       zIndex: 1,
     },
   };
@@ -39,8 +32,9 @@ const ProductCard = ({ car }) => {
 
   return (
     <motion.div
-      className="bg-[#101228] rounded-xl shadow-lg overflow-hidden flex flex-col h-full
-                 transform transition-all duration-300 hover:shadow-2xl hover:shadow-blue-600/30"
+      // এখানে লাইট মোডে সাদা এবং ডার্ক মোডে নেভি ব্লু কালার দেওয়া হয়েছে
+      className="bg-white dark:bg-[#101228] border border-slate-100 dark:border-slate-800 rounded-xl shadow-lg overflow-hidden flex flex-col h-full
+                 transform transition-all duration-300 hover:shadow-2xl hover:shadow-blue-600/20"
       variants={cardVariants}
       initial="hidden"
       animate="visible"
@@ -58,48 +52,38 @@ const ProductCard = ({ car }) => {
         </div>
       )}
       <div className="p-5 flex flex-col flex-grow">
-        <h3 className="text-xl font-bold text-white mb-2">{carName}</h3>
+        {/* টাইটেল কালার ফিক্সড */}
+        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">{carName}</h3>
 
-        <div className="flex justify-between items-center text-gray-400 text-sm mb-3 mt-3">
-          <p>
-            Rent:{" "}
-            <span
-              className="font-semibold text-green-500 cursor-help"
-              data-tooltip-id="rent-price-tooltip"
-              data-tooltip-content={`Daily rental price for ${carName}`}
-              data-tooltip-place="top"
-            >
-              ${displayRentPrice}
-            </span>{" "}
-            / day
-          </p>
-          <p>
-            Type:{" "}
-            <span className="font-semibold text-blue-400">{category}</span>{" "}
+        <div className="flex justify-between items-center text-sm mb-4">
+          <p className="text-slate-500 dark:text-gray-400 font-medium">
+            Category:{" "}
+            <span className="font-semibold text-blue-500 dark:text-blue-400">{category}</span>{" "}
           </p>
         </div>
 
-        {location && (
-          <p className="text-gray-500 text-sm mb-2 font-bold">
-            Location:{" "}
-            <span className="font-normal text-blue-400">{location}</span>
-          </p>
-        )}
+        {/* লোকেশন এবং প্রোভাইডার সেকশন */}
+        <div className="space-y-2 mb-6">
+          {location && (
+            <p className="text-slate-500 dark:text-gray-400 text-sm font-bold">
+              Location:{" "}
+              <span className="font-normal text-slate-700 dark:text-blue-300">{location}</span>
+            </p>
+          )}
 
-        <p className="text-gray-500 text-sm mb-4 font-bold">
-          Provider:{" "}
-          <span className="font-normal text-blue-400">{providerName}</span>
-        </p>
+          <p className="text-slate-500 dark:text-gray-400 text-sm font-bold">
+            Provider:{" "}
+            <span className="font-normal text-slate-700 dark:text-blue-300">{providerName}</span>
+          </p>
+        </div>
 
         <NavLink
           to={`/cardetails/${_id}`}
-          className="mt-auto block text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 hover:scale-105"
+          className="mt-auto block text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-lg transition-all duration-300"
         >
           View Details
         </NavLink>
       </div>
-
-      <Tooltip id="rent-price-tooltip" />
     </motion.div>
   );
 };
