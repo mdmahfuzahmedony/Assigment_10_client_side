@@ -48,6 +48,8 @@ const Navbar = () => {
       <li><Link to="/browsecars" className="font-semibold text-slate-700 dark:text-gray-200 hover:text-blue-500">Browse Cars</Link></li>
       <li><Link to="/about" className="font-semibold text-slate-700 dark:text-gray-200 hover:text-blue-500">About</Link></li>
       <li><Link to="/blogs" className="font-semibold text-slate-700 dark:text-gray-200 hover:text-blue-500">Blogs</Link></li>
+      <li><Link to="/contact" className="font-semibold text-slate-700 dark:text-gray-200 hover:text-blue-500">Contact</Link></li>
+
       
      
     </>
@@ -55,7 +57,7 @@ const Navbar = () => {
 
   return (
     <div className="fixed top-0 left-0 w-full z-50 shadow-sm bg-white dark:bg-[#0f172a] border-b dark:border-slate-800 transition-colors duration-300">
-      <div className="navbar max-w-[1500px] mx-auto px-4 lg:px-8">
+      <div className="navbar max-w-[1500px] mx-auto px-4 lg:px-0">
         <div className="navbar-start">
           <div className="dropdown">
             <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden dark:text-white">

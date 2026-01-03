@@ -46,11 +46,11 @@ const BlogPage = () => {
     const categories = ["All Categories", "Travel", "Technology", "Electric", "Business", "Safety"];
 
     return (
-        <section className="py-20 bg-white dark:bg-[#020617] transition-colors duration-500 min-h-screen">
-            <div className="max-w-[1500px] mx-auto px-6">
+        <section className="py-50  bg-white  dark:bg-[#020617] transition-colors duration-500 min-h-screen py-10">
+            <div className="max-w-[1500px] mx-auto px-6 py-10  lg:px-0">
 
                 {/* Page Header */}
-                <div className="mb-16">
+                <div className="mb-16 ">
                     <h1 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white mb-4">
                         Our <span className="text-blue-500">Blog & Insights</span>
                     </h1>
@@ -163,6 +163,7 @@ const BlogPage = () => {
                     </div>
 
                 </div>
+
             </div>
         </section>
     );

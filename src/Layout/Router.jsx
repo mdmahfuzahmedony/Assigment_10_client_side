@@ -17,6 +17,7 @@ import AddCar from "../Pages/AddCars";
 import MyProfile from "../Pages/Dashboard/MyProfile/myprofile";
 import About from "../Pages/About/About";
 import BlogPage from "../Pages/Blog/Blog";
+import Contact from "../Pages/Contact/Contact";
 
 export const router = createBrowserRouter([
   {
@@ -69,6 +70,10 @@ export const router = createBrowserRouter([
         path:"/blogs",
         element:<BlogPage></BlogPage>
 
+      },
+      {
+        path:"/contact",
+        element:<Contact></Contact>
       },
    
 

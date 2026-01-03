@@ -6,7 +6,7 @@ const AboutPage = () => {
         <div className="bg-white dark:bg-[#020817] text-slate-900 dark:text-white min-h-screen font-sans transition-colors duration-300">
 
             {/* Main Container - max-w-[1500px] */}
-            <div className="max-w-[1500px] mx-auto px-6 border md:px-12">
+            <div className="max-w-[1500px] mx-auto px-6  md:px-12">
 
                 {/* Hero Section */}
                 <section className="relative py-24 text-center overflow-hidden">
@@ -26,7 +26,7 @@ const AboutPage = () => {
                 </section>
 
                 {/* Stats Section */}
-                <section className="py-12 max-w-[1500px] border lg:px-0 mx-auto">
+                <section className="py-12 max-w-[1500px]  lg:px-0 mx-auto">
                     <div className="grid grid-cols-2 md:grid-cols-4 border gap-8 bg-slate-50 dark:bg-[#0a101f] p-12 rounded-[3rem] border border-slate-200 dark:border-white/5 shadow-xl">
                         {[
                             { label: "Satisfied Users", value: "15k+" },

@@ -8,6 +8,7 @@ import ProductCarouselSection from "../Component/ProductCarouselSection";
 import TestimonialSection from "../Component/TestimonialSection";
 import ProductCard from "../Component/ProductCard";
 import { NavLink } from "react-router";
+import Categories from "../Component/catagory";
 
 const Home = () => {
   const [allCars, setAllCars] = useState([]);
@@ -107,11 +108,11 @@ const Home = () => {
           </div>
         </div>
       </div>
-
+      <Categories></Categories>
       {/* কার লিস্ট সেকশন - ডার্ক মোড ফিক্সড */}
       <div className="max-w-[1500px] mx-auto py-20 px-4 lg:px-0">
         <h2 className="text-3xl text-center  md:text-5xl font-black text-slate-900 dark:text-white leading-tight">
-        Explore <span className="text-blue-500">All Cars</span>
+          Explore <span className="text-blue-500">All Cars</span>
         </h2>
         <p className="text-center py-2 text-gray-600 dark:text-gray-400 mb-10">
           Find the perfect vehicle for your needs
