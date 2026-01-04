@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Edit3, Trash2, Calendar, DollarSign, Car } from "lucide-react";
+import { Edit3, Trash2, Calendar, MapPin, Car } from "lucide-react"; // সব আইকন একসাথে
 import { AuthContext } from "../AuthProvider/Authprovider";
 import { toast } from "react-toastify";
-import { Link } from "react-router";
-import Swal from "sweetalert2"; // Delete confirmation এর জন্য ভালো
+import { Link } from "react-router"; // react-router-dom ব্যবহার করুন
+import Swal from "sweetalert2";
 
 const MyListing = () => {
   const [myCars, setMyCars] = useState([]);
@@ -20,7 +20,6 @@ const MyListing = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      // ইমেইল দিয়ে ফিল্টার করে ডাটা আনা হচ্ছে
       const response = await fetch(
         `https://assigmen-10-server-side.vercel.app/carProduct?email=${user?.email}`
       );
@@ -33,7 +32,6 @@ const MyListing = () => {
     }
   };
 
-  // Delete Functionality
   const handleDelete = (id) => {
     Swal.fire({
       title: "Are you sure?",
@@ -50,12 +48,18 @@ const MyListing = () => {
         })
           .then((res) => res.json())
           .then((data) => {
-            if (data.deletedCount > 0) {
-              toast.success("Car deleted successfully");
-              // ডিলিট হওয়ার পর স্টেট আপডেট করা
+            // আপনার সার্ভার যদি {message: "..."} পাঠায়, তবে এটি চেক করুন:
+            if (data.message === "Car deleted successfully!" || data.deletedCount > 0) {
+              toast.success("✅ Car deleted successfully");
               const remaining = myCars.filter((car) => car._id !== id);
               setMyCars(remaining);
+            } else {
+              toast.error("❌ Delete failed!");
             }
+          })
+          .catch(err => {
+            console.error(err);
+            toast.error("⚠️ Error connecting to server");
           });
       }
     });
@@ -70,11 +74,7 @@ const MyListing = () => {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="p-4 md:p-8"
-    >
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-4 md:p-8">
       <div className="flex justify-between items-center mb-8">
         <div>
           <h2 className="text-3xl font-black text-white">
@@ -96,7 +96,6 @@ const MyListing = () => {
       ) : (
         <div className="overflow-x-auto bg-[#101228] rounded-3xl border border-slate-800 shadow-2xl">
           <table className="table w-full text-left border-collapse">
-            {/* Table Header */}
             <thead>
               <tr className="border-b border-slate-800 text-slate-400 uppercase text-[10px] tracking-widest font-black">
                 <th className="p-6">Car Info</th>
@@ -109,15 +108,10 @@ const MyListing = () => {
             <tbody>
               {myCars.map((car) => (
                 <tr key={car._id} className="border-b border-slate-800/50 hover:bg-slate-900/30 transition-all group">
-                  {/* Car Info with Image */}
                   <td className="p-6">
                     <div className="flex items-center gap-4">
                       <div className="h-16 w-24 overflow-hidden rounded-xl bg-slate-800">
-                        <img
-                          src={car.hostedImageUrl || car.image}
-                          alt=""
-                          className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        />
+                        <img src={car.hostedImageUrl || car.image} alt="" className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500" />
                       </div>
                       <div>
                         <div className="font-bold text-white text-base">{car.carName}</div>
@@ -127,47 +121,23 @@ const MyListing = () => {
                       </div>
                     </div>
                   </td>
-
-                  {/* Category */}
-                  <td>
-                    <span className="px-3 py-1 bg-slate-800 text-slate-400 rounded-lg text-[10px] font-black uppercase tracking-widest">
-                      {car.category}
-                    </span>
-                  </td>
-
-                  {/* Rent Price */}
+                  <td><span className="px-3 py-1 bg-slate-800 text-slate-400 rounded-lg text-[10px] font-black uppercase tracking-widest">{car.category}</span></td>
                   <td>
                     <div className="flex flex-col">
                       <span className="text-blue-500 font-black text-lg">${car.rentPricePerDay}</span>
                       <span className="text-[9px] text-slate-500 uppercase font-bold">Per Day</span>
                     </div>
                   </td>
-
-                  {/* Added Date */}
                   <td>
                     <div className="text-slate-400 text-sm font-semibold flex items-center gap-2">
                       <Calendar size={14} className="text-slate-600" />
                       {new Date(car.dateAdded || Date.now()).toLocaleDateString()}
                     </div>
                   </td>
-
-                  {/* Actions (Edit & Delete) */}
                   <td>
                     <div className="flex items-center justify-center gap-3">
-                      <Link
-                        to={`/dashboard/update_car/${car._id}`}
-                        className="p-2 bg-blue-600/10 text-blue-500 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-lg"
-                        title="Edit Listing"
-                      >
-                        <Edit3 size={18} />
-                      </Link>
-                      <button
-                        onClick={() => handleDelete(car._id)}
-                        className="p-2 bg-red-600/10 text-red-500 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-lg"
-                        title="Delete Listing"
-                      >
-                        <Trash2 size={18} />
-                      </button>
+                      <Link to={`/dashboard/update_car/${car._id}`} className="p-2 bg-blue-600/10 text-blue-500 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-lg"><Edit3 size={18} /></Link>
+                      <button onClick={() => handleDelete(car._id)} className="p-2 bg-red-600/10 text-red-500 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-lg"><Trash2 size={18} /></button>
                     </div>
                   </td>
                 </tr>
@@ -179,8 +149,5 @@ const MyListing = () => {
     </motion.div>
   );
 };
-
-// MapPin আইকন ব্যবহার করা হয়েছে কিন্তু ইমপোর্ট করা হয়নি, তাই নিচের ছোট অ্যাডজাস্টমেন্ট:
-import { MapPin } from "lucide-react";
 
 export default MyListing;
