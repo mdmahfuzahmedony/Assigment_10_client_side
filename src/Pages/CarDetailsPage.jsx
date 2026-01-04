@@ -138,7 +138,7 @@ const CarDetailsPage = () => {
       if (res.ok) {
         toast.success("✅ Booking successful!");
         setIsCarBookedByUser(true); // Update state to reflect booking
-        navigate("/my-bookings"); // Redirect to user's bookings page
+        navigate("/dashboard/my-bookings"); // Redirect to user's bookings page
       } else {
         const errorData = await res.json(); // Get error message from backend
         // Display specific error message from backend if available

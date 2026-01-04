@@ -1,226 +1,186 @@
-import React, { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Search, MapPin, Calendar, ArrowRight, SlidersHorizontal, ChevronDown, Car, DollarSign } from "lucide-react";
+import React, { useContext, useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { Edit3, Trash2, Calendar, DollarSign, Car } from "lucide-react";
+import { AuthContext } from "../AuthProvider/Authprovider";
+import { toast } from "react-toastify";
+import { Link } from "react-router";
+import Swal from "sweetalert2"; // Delete confirmation এর জন্য ভালো
 
-const ExploreCars = () => {
-  const [cars, setCars] = useState([]); // মূল ডাটা
-  const [filteredCars, setFilteredCars] = useState([]); // ফিল্টার করা ডাটা
-  const [isLoading, setIsLoading] = useState(true);
+const MyListing = () => {
+  const [myCars, setMyCars] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { user } = useContext(AuthContext);
 
-  // ফিল্টার এবং সার্চ স্টেট
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [selectedPriceRange, setSelectedPriceRange] = useState("All");
-  const [sortOrder, setSortOrder] = useState("default");
-
-  // ডাটা ফেচিং
   useEffect(() => {
-    const fetchCars = async () => {
-      setIsLoading(true);
-      try {
-        const response = await fetch("https://assigmen-10-server-side.vercel.app/carProduct");
-        const data = await response.json();
-        setCars(data);
-        setFilteredCars(data);
-      } catch (error) {
-        console.error("Error:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchCars();
-  }, []);
+    if (user?.email) {
+      fetchData();
+    }
+  }, [user?.email]);
 
-  // সার্চ এবং ফিল্টার লজিক (Fully Functional)
-  useEffect(() => {
-    let result = [...cars];
-
-    // ১. সার্চবার লজিক (গাড়ির নাম বা লোকেশন দিয়ে)
-    if (searchQuery) {
-      result = result.filter((car) =>
-        car.carName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        car.location?.toLowerCase().includes(searchQuery.toLowerCase())
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      // ইমেইল দিয়ে ফিল্টার করে ডাটা আনা হচ্ছে
+      const response = await fetch(
+        `https://assigmen-10-server-side.vercel.app/carProduct?email=${user?.email}`
       );
+      const data = await response.json();
+      setMyCars(data);
+    } catch (error) {
+      console.error("Error fetching my cars:", error);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    // ২. ক্যাটাগরি ফিল্টার (Field 1)
-    if (selectedCategory !== "All") {
-      result = result.filter((car) => car.category === selectedCategory);
-    }
+  // Delete Functionality
+  const handleDelete = (id) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        fetch(`https://assigmen-10-server-side.vercel.app/carProduct/${id}`, {
+          method: "DELETE",
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.deletedCount > 0) {
+              toast.success("Car deleted successfully");
+              // ডিলিট হওয়ার পর স্টেট আপডেট করা
+              const remaining = myCars.filter((car) => car._id !== id);
+              setMyCars(remaining);
+            }
+          });
+      }
+    });
+  };
 
-    // ৩. প্রাইস রেঞ্জ ফিল্টার (Field 2)
-    if (selectedPriceRange !== "All") {
-      const [min, max] = selectedPriceRange.split("-").map(Number);
-      result = result.filter((car) => {
-        const price = Number(car.rentPricePerDay);
-        return max ? price >= min && price <= max : price >= min;
-      });
-    }
-
-    // ৪. সর্টিং লজিক (Price Low/High)
-    if (sortOrder === "low-to-high") {
-      result.sort((a, b) => a.rentPricePerDay - b.rentPricePerDay);
-    } else if (sortOrder === "high-to-low") {
-      result.sort((a, b) => b.rentPricePerDay - a.rentPricePerDay);
-    }
-
-    setFilteredCars(result);
-  }, [searchQuery, selectedCategory, selectedPriceRange, sortOrder, cars]);
-
-  if (isLoading) {
+  if (loading) {
     return (
-      <div className="h-screen flex items-center justify-center bg-white dark:bg-[#020617]">
+      <div className="h-96 flex items-center justify-center">
         <span className="loading loading-spinner loading-lg text-blue-600"></span>
       </div>
     );
   }
 
   return (
-    <div className="bg-white dark:bg-[#020617] min-h-screen pb-20 transition-colors duration-500">
-
-      {/* Search & Filter Section */}
-      <section className="bg-slate-50 dark:bg-[#0a0f1d] py-16 border-b border-slate-200 dark:border-slate-800">
-        <div className="max-w-[1500px] mx-auto px-6">
-          <h1 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white mb-10">
-            Find Your <span className="text-blue-500">Dream Ride</span>
-          </h1>
-
-          {/* Functional Bar */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 bg-white dark:bg-[#101228] p-4 rounded-[2rem] shadow-xl border dark:border-slate-800">
-
-            {/* Search Input */}
-            <div className="lg:col-span-5 relative group">
-              <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500" size={20} />
-              <input
-                type="text"
-                placeholder="Search by model or location..."
-                className="w-full bg-slate-50 dark:bg-[#020617] border-none rounded-2xl py-4 px-14 focus:ring-2 focus:ring-blue-500 transition-all dark:text-white"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-
-            {/* Category Filter */}
-            <div className="lg:col-span-2 relative">
-              <select
-                className="w-full bg-slate-50 dark:bg-[#020617] rounded-2xl py-4 px-6 appearance-none focus:ring-2 focus:ring-blue-500 dark:text-white font-bold text-sm"
-                onChange={(e) => setSelectedCategory(e.target.value)}
-              >
-                <option value="All">All Categories</option>
-                <option value="Sedan">Sedan</option>
-                <option value="SUV">SUV</option>
-                <option value="Luxury">Luxury</option>
-                <option value="Sports">Sports</option>
-              </select>
-              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-            </div>
-
-            {/* Price Filter */}
-            <div className="lg:col-span-2 relative">
-              <select
-                className="w-full bg-slate-50 dark:bg-[#020617] rounded-2xl py-4 px-6 appearance-none focus:ring-2 focus:ring-blue-500 dark:text-white font-bold text-sm"
-                onChange={(e) => setSelectedPriceRange(e.target.value)}
-              >
-                <option value="All">Any Price</option>
-                <option value="0-50">$0 - $50</option>
-                <option value="51-150">$51 - $150</option>
-                <option value="151-500">$151 - $500</option>
-                <option value="501-10000">$500+</option>
-              </select>
-              <DollarSign className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-            </div>
-
-            {/* Sort Order */}
-            <div className="lg:col-span-3 relative">
-              <select
-                className="w-full bg-slate-900 dark:bg-blue-600 text-white rounded-2xl py-4 px-6 appearance-none font-bold text-sm cursor-pointer"
-                onChange={(e) => setSortOrder(e.target.value)}
-              >
-                <option value="default">Sort: Newest First</option>
-                <option value="low-to-high">Price: Low to High</option>
-                <option value="high-to-low">Price: High to Low</option>
-              </select>
-              <SlidersHorizontal className="absolute right-5 top-1/2 -translate-y-1/2 text-white/70" size={18} />
-            </div>
-          </div>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="p-4 md:p-8"
+    >
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h2 className="text-3xl font-black text-white">
+            My <span className="text-blue-600">Listings</span>
+          </h2>
+          <p className="text-slate-400 mt-1">Manage all your posted vehicles here.</p>
         </div>
-      </section>
-
-      {/* Car Grid */}
-      <div className="max-w-[1500px] mx-auto px-6 mt-12">
-        <div className="flex justify-between items-center mb-8">
-          <p className="text-slate-500 font-bold uppercase tracking-[0.2em] text-xs">
-            Found {filteredCars.length} results
-          </p>
-        </div>
-
-        {filteredCars.length === 0 ? (
-          <div className="py-24 text-center">
-            <Car size={64} className="mx-auto text-slate-200 dark:text-slate-800 mb-4" />
-            <h2 className="text-2xl font-bold text-slate-400">No vehicles match your search.</h2>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
-            <AnimatePresence>
-              {filteredCars.map((car) => (
-                <motion.div
-                  layout
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  key={car._id}
-                  className="group bg-white dark:bg-[#101228] border border-slate-200 dark:border-slate-800 rounded-[2.5rem] overflow-hidden hover:shadow-2xl transition-all duration-500 flex flex-col h-full"
-                >
-                  {/* Image Area */}
-                  <div className="relative h-60 overflow-hidden">
-                    <img src={car.hostedImageUrl || car.image} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                    <div className="absolute top-4 right-4 bg-blue-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">
-                      {car.category}
-                    </div>
-                  </div>
-
-                  {/* Info Area */}
-                  <div className="p-8 flex flex-col flex-grow">
-                    <div className="flex justify-between items-start mb-6">
-                      <h3 className="text-xl font-bold text-slate-900 dark:text-white truncate pr-2">{car.carName}</h3>
-                      <div className="text-right flex-shrink-0">
-                        <span className="text-blue-500 font-black text-2xl">${car.rentPricePerDay}</span>
-                        <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-tighter">per day</span>
-                      </div>
-                    </div>
-
-                    <div className="space-y-4 mb-8">
-                      <div className="flex items-center gap-3 text-slate-500 dark:text-slate-400 text-sm font-semibold">
-                        <MapPin size={16} className="text-blue-500" /> {car.location || "Available"}
-                      </div>
-                      <div className="flex items-center gap-3 text-slate-500 dark:text-slate-400 text-sm font-semibold">
-                        <Calendar size={16} className="text-blue-500" /> Posted {new Date(car.dateAdded || Date.now()).toLocaleDateString()}
-                      </div>
-                    </div>
-
-                    <button className="mt-auto w-full py-4 bg-slate-900 dark:bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-600 dark:hover:bg-blue-700 transition-all flex items-center justify-center gap-2 group/btn uppercase tracking-widest text-xs">
-                      View Details <ArrowRight size={16} className="group-hover/btn:translate-x-2 transition-transform" />
-                    </button>
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
-        )}
-
-        {/* Pagination UI */}
-        <div className="mt-20 flex justify-center items-center gap-3">
-          <button className="px-6 py-3 bg-slate-100 dark:bg-slate-800 rounded-xl font-bold text-slate-500 cursor-not-allowed">Prev</button>
-          {[1, 2, 3].map(n => (
-            <button key={n} className={`w-12 h-12 rounded-xl font-bold transition-all ${n === 1 ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/40' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-blue-500 hover:text-white'}`}>
-              {n}
-            </button>
-          ))}
-          <button className="px-6 py-3 bg-slate-100 dark:bg-slate-800 rounded-xl font-bold text-slate-500 hover:bg-blue-500 hover:text-white transition-all">Next</button>
+        <div className="bg-blue-600/10 text-blue-500 px-4 py-2 rounded-full font-bold text-sm">
+          Total: {myCars.length} Cars
         </div>
       </div>
-    </div>
+
+      {myCars.length === 0 ? (
+        <div className="text-center py-20 bg-[#101228] rounded-3xl border border-dashed border-slate-800">
+          <Car size={60} className="mx-auto text-slate-700 mb-4" />
+          <p className="text-xl font-bold text-slate-500">You haven't listed any cars yet.</p>
+          <Link to="/dashboard/add-car" className="btn btn-primary mt-4">Add a Car Now</Link>
+        </div>
+      ) : (
+        <div className="overflow-x-auto bg-[#101228] rounded-3xl border border-slate-800 shadow-2xl">
+          <table className="table w-full text-left border-collapse">
+            {/* Table Header */}
+            <thead>
+              <tr className="border-b border-slate-800 text-slate-400 uppercase text-[10px] tracking-widest font-black">
+                <th className="p-6">Car Info</th>
+                <th>Category</th>
+                <th>Rent Price</th>
+                <th>Added Date</th>
+                <th className="text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {myCars.map((car) => (
+                <tr key={car._id} className="border-b border-slate-800/50 hover:bg-slate-900/30 transition-all group">
+                  {/* Car Info with Image */}
+                  <td className="p-6">
+                    <div className="flex items-center gap-4">
+                      <div className="h-16 w-24 overflow-hidden rounded-xl bg-slate-800">
+                        <img
+                          src={car.hostedImageUrl || car.image}
+                          alt=""
+                          className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                      </div>
+                      <div>
+                        <div className="font-bold text-white text-base">{car.carName}</div>
+                        <div className="text-xs text-slate-500 flex items-center gap-1">
+                          <MapPin size={10} /> {car.location || "N/A"}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+
+                  {/* Category */}
+                  <td>
+                    <span className="px-3 py-1 bg-slate-800 text-slate-400 rounded-lg text-[10px] font-black uppercase tracking-widest">
+                      {car.category}
+                    </span>
+                  </td>
+
+                  {/* Rent Price */}
+                  <td>
+                    <div className="flex flex-col">
+                      <span className="text-blue-500 font-black text-lg">${car.rentPricePerDay}</span>
+                      <span className="text-[9px] text-slate-500 uppercase font-bold">Per Day</span>
+                    </div>
+                  </td>
+
+                  {/* Added Date */}
+                  <td>
+                    <div className="text-slate-400 text-sm font-semibold flex items-center gap-2">
+                      <Calendar size={14} className="text-slate-600" />
+                      {new Date(car.dateAdded || Date.now()).toLocaleDateString()}
+                    </div>
+                  </td>
+
+                  {/* Actions (Edit & Delete) */}
+                  <td>
+                    <div className="flex items-center justify-center gap-3">
+                      <Link
+                        to={`/dashboard/update_car/${car._id}`}
+                        className="p-2 bg-blue-600/10 text-blue-500 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-lg"
+                        title="Edit Listing"
+                      >
+                        <Edit3 size={18} />
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(car._id)}
+                        className="p-2 bg-red-600/10 text-red-500 rounded-xl hover:bg-red-600 hover:text-white transition-all shadow-lg"
+                        title="Delete Listing"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </motion.div>
   );
 };
 
-export default ExploreCars;
+// MapPin আইকন ব্যবহার করা হয়েছে কিন্তু ইমপোর্ট করা হয়নি, তাই নিচের ছোট অ্যাডজাস্টমেন্ট:
+import { MapPin } from "lucide-react";
+
+export default MyListing;

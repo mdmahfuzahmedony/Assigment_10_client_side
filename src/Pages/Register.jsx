@@ -10,36 +10,68 @@ const Login = () => {
   const { createUser, signInWithGoogle } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  // const formHandel = (e) => {
+  //   e.preventDefault();
+  //   const name = e.target.name.value;
+  //   const photoURL = e.target.photoURL.value;
+  //   const email = e.target.email.value;
+  //   const password = e.target.password.value;
+  //   const checkBox = e.target.checkBox.value;
+  //   const newUser = { name, photoURL, email, password };
+  //   console.log(newUser);
+
+  //   createUser(name, photoURL, email, password)
+  //     .then(() => {
+  //       toast.success("Account Created Successfully");
+  //       navigate("/login");
+  //     })
+  //     .catch((err) => {
+  //       toast.error(`Account Created failed${err.message}`);
+  //     });
+
+  //   const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.{6,}).*$/;
+
+  //   if (!passwordRegex.test(password)) {
+  //     toast.error("Password must contain at least one uppercase letter");
+  //     return;
+  //   }
+
+  //   if (!checkBox) {
+  //     toast.warn("Please accept the terms and conditions!");
+  //     return;
+  //   }
+  // };
+
   const formHandel = (e) => {
     e.preventDefault();
     const name = e.target.name.value;
     const photoURL = e.target.photoURL.value;
-    const email = e.target.email.value;
+    const email = e.target.email.value.trim(); // .trim() যোগ করা ভালো
     const password = e.target.password.value;
-    const checkBox = e.target.checkBox.value;
-    const newUser = { name, photoURL, email, password };
-    console.log(newUser);
+    const checkBox = e.target.checkBox.checked; // .value এর বদলে .checked ব্যবহার করুন
 
-    createUser(name, photoURL, email, password)
+    // ১. প্রথমেই ভ্যালিডেশন করুন
+    if (!checkBox) {
+      toast.warn("Please accept the terms and conditions!");
+      return;
+    }
+
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.{6,}).*$/;
+    if (!passwordRegex.test(password)) {
+      toast.error("Password must contain at least one uppercase and be 6+ characters");
+      return;
+    }
+
+    // ২. সঠিক সিরিয়ালে প্যারামিটার পাঠান (AuthProvider অনুযায়ী)
+    // AuthProvider সিরিয়াল: (email, password, displayName, photoURL)
+    createUser(email, password, name, photoURL)
       .then(() => {
         toast.success("Account Created Successfully");
         navigate("/login");
       })
       .catch((err) => {
-        toast.error(`Account Created failed${err.message}`);
+        toast.error(`Account Created failed: ${err.message}`);
       });
-
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.{6,}).*$/;
-
-    if (!passwordRegex.test(password)) {
-      toast.error("Password must contain at least one uppercase letter");
-      return;
-    }
-
-    if (!checkBox) {
-      toast.warn("Please accept the terms and conditions!");
-      return;
-    }
   };
 
   const signINgoogle = () => {
