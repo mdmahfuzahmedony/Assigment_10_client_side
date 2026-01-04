@@ -8,18 +8,17 @@ import {
   CheckCircle,
   XCircle,
 } from "lucide-react";
-import { useLoaderData, useNavigate } from "react-router"; // Changed to 'react-router-dom'
+import { useLoaderData, useNavigate } from "react-router"; // Your original import
 import { toast } from "react-toastify";
 import { AuthContext } from "../AuthProvider/Authprovider";
 
 const CarDetailsPage = () => {
   const data = useLoaderData();
-  // console.log(data); // Can remove this console.log if not needed for debugging
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const [isCarBookedByUser, setIsCarBookedByUser] = useState(false);
-  const [bookingStatusLoading, setBookingStatusLoading] = useState(true); // Default to true as we need to check
+  const [bookingStatusLoading, setBookingStatusLoading] = useState(true);
 
   const {
     _id: carId,
@@ -32,266 +31,214 @@ const CarDetailsPage = () => {
     description,
     location,
     status,
-  } = data || {}; // Added default empty object for safety
+    additionalImages = [],
+  } = data || {};
+
+  // --- Image Gallery Logic ---
+  const [activeImg, setActiveImg] = useState(carImage);
+  useEffect(() => {
+    if (carImage) setActiveImg(carImage);
+  }, [carImage]);
+
+  const allImages = carImage ? [carImage, ...additionalImages] : [];
+  const displayImages = allImages.length > 1 ? allImages : [carImage, carImage, carImage, carImage];
 
   const displayRentPrice = Number(rentPricePerDay) || 0;
-
-  const descriptionText =
-    description ||
-    "No detailed description available for this car. It's a fantastic choice for its category and price point.";
-  const locationText = location || "Central City, USA";
   const statusText = status || "available";
+  const finalProviderEmail = providerEmail || "contact@provider.com";
 
-  const finalProviderEmail =
-    providerEmail ||
-    "contact@" +
-      (providerName?.toLowerCase().replace(/\s/g, "") || "unknown") +
-      ".com";
-
-  // --- START FIXED USEEFFECT ---
+  // --- Check Booking Status (Original Logic) ---
   useEffect(() => {
     const checkIfBooked = async () => {
-      // Ensure both user email and carId are available before making the fetch call
       if (user?.email && carId) {
-        setBookingStatusLoading(true); // Start loading when checking status
+        setBookingStatusLoading(true);
         try {
-          // Changed the endpoint to match the server-side update
-          const res = await fetch(
-            `https://assigmen-10-server-side.vercel.app/bookings/user/${user.email}`
-          );
-          if (!res.ok) {
-            const errorText = await res.text();
-            throw new Error(
-              `Failed to fetch user bookings: ${res.status} ${errorText}`
-            );
-          }
+          const res = await fetch(`https://assigmen-10-server-side.vercel.app/bookings/user/${user.email}`);
+          if (!res.ok) throw new Error("Failed to fetch");
           const userBookings = await res.json();
-
-          // Check if any of the fetched bookings match the current carId and userEmail
-          const booked = userBookings.some(
-            (booking) =>
-              booking.carId === carId && booking.userEmail === user.email
-          );
+          const booked = userBookings.some(b => b.carId === carId && b.userEmail === user.email);
           setIsCarBookedByUser(booked);
         } catch (error) {
-          console.error("Error checking booking status:", error);
-          toast.error("⚠️ Failed to check booking status. Please try again.");
-          setIsCarBookedByUser(false); // Assume not booked on error
+          console.error("Error:", error);
         } finally {
-          setBookingStatusLoading(false); // Stop loading regardless of success or failure
+          setBookingStatusLoading(false);
         }
       } else {
-        setIsCarBookedByUser(false);
         setBookingStatusLoading(false);
       }
     };
+    if (carId) checkIfBooked();
+  }, [user?.email, carId]);
 
-    if (carId) {
-      checkIfBooked();
-    } else {
-      setBookingStatusLoading(false);
-    }
-  }, [user?.email, carId]); // Dependency array: Re-run if user.email or carId changes
-  // --- END FIXED USEEFFECT ---
-
+  // --- Handle Book Now (Directly Redirects to My Bookings) ---
   const handleBookNow = async () => {
-    if (isCarBookedByUser) {
-      toast.error("❌ You have already booked this car.");
-      return;
-    }
-
+    if (isCarBookedByUser) return toast.error("❌ You have already booked this car.");
     if (!user) {
       toast.error("Please log in to book a car.");
       navigate("/login");
       return;
     }
-    if (user.email === finalProviderEmail) {
-      toast.error("❌ You cannot book your own car.");
-      return;
-    }
+    if (user.email === finalProviderEmail) return toast.error("❌ You cannot book your own car.");
 
     const bookingInfo = {
-      carId,
-      carImage,
-      carName,
-      rentPrice: displayRentPrice,
-      category,
-      location: locationText,
-      providerName,
-      providerEmail: finalProviderEmail,
-      userEmail: user.email,
-      date: new Date().toISOString(), // Use ISO string for consistent date storage
-      status: "pending", // Initial booking status
+      carId, carImage, carName, rentPrice: displayRentPrice, category,
+      location: location || "City Center", providerName, providerEmail: finalProviderEmail,
+      userEmail: user.email, date: new Date().toISOString(), status: "pending",
     };
 
     setLoading(true);
     try {
-      const res = await fetch(
-        "https://assigmen-10-server-side.vercel.app/bookings",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(bookingInfo),
-        }
-      );
+      const res = await fetch("https://assigmen-10-server-side.vercel.app/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bookingInfo),
+      });
 
       if (res.ok) {
         toast.success("✅ Booking successful!");
-        setIsCarBookedByUser(true); // Update state to reflect booking
-        navigate("/dashboard/my-bookings"); // Redirect to user's bookings page
+        setIsCarBookedByUser(true);
+        navigate("/dashboard/my-bookings"); // Redirection logic
       } else {
-        const errorData = await res.json(); // Get error message from backend
-        // Display specific error message from backend if available
-        toast.error(
-          `❌ Failed to create booking: ${
-            errorData.message || "Please try again!"
-          }`
-        );
+        const errorData = await res.json();
+        toast.error(`❌ Failed: ${errorData.message || "Try again!"}`);
       }
     } catch (error) {
-      console.error("Error creating booking:", error);
-      toast.error("⚠️ Something went wrong while processing your booking!");
+      toast.error("⚠️ Error processing booking.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Button logic
-  const isDisabled =
-    loading ||
-    bookingStatusLoading || // Disable while checking booking status
-    statusText !== "available" ||
-    isCarBookedByUser ||
-    user?.email === finalProviderEmail;
+  const isDisabled = loading || bookingStatusLoading || statusText !== "available" || isCarBookedByUser || user?.email === finalProviderEmail;
 
   let buttonText = "Book Now";
-  if (loading) {
-    buttonText = "Booking...";
-  } else if (bookingStatusLoading) {
-    buttonText = "Checking Status...";
-  } else if (!user) {
-    buttonText = "Login to Book";
-  } else if (user?.email === finalProviderEmail) {
-    buttonText = "Your Own Car";
-  } else if (isCarBookedByUser) {
-    buttonText = "Already Booked";
-  } else if (statusText !== "available") {
-    buttonText = "Not Available";
-  }
+  if (loading) buttonText = "Booking...";
+  else if (bookingStatusLoading) buttonText = "Checking Status...";
+  else if (isCarBookedByUser) buttonText = "Already Booked";
+  else if (statusText !== "available") buttonText = "Not Available";
 
   return (
-    <section className="min-h-screen max-w-[1200px] mx-auto my-30 py-16 md:py-24 text-white">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="rounded-xl shadow-lg overflow-hidden md:flex bg-[#101228]">
-          <div className="md:w-1/2 rounded-2xl">
-            <img
-              src={carImage}
-              alt={carName}
-              className="w-full h-80 md:h-full object-cover"
-            />
+    <div className="min-h-screen bg-white dark:bg-[#070815] transition-colors duration-300 py-10 md:py-20 px-4">
+      <div className="max-w-7xl mx-auto mt-10">
+
+        {/* Main Wrapper: Responsive Grid */}
+        <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 bg-gray-50 dark:bg-[#101228] border border-gray-200 dark:border-gray-800 rounded-[2rem] overflow-hidden shadow-2xl">
+
+          {/* LEFT: Image Section (Responsive Aspect Ratio) */}
+          <div className="w-full lg:w-1/2 p-4 md:p-6">
+            <div className="relative rounded-2xl overflow-hidden bg-white dark:bg-gray-900 aspect-[4/3] sm:aspect-video lg:aspect-square shadow-md">
+              <img
+                src={activeImg}
+                alt={carName}
+                className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+              />
+              <div className="absolute top-4 right-4">
+                <span className={`px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border backdrop-blur-md ${statusText === 'available'
+                    ? 'bg-green-500/10 border-green-500 text-green-600 dark:text-green-400'
+                    : 'bg-red-500/10 border-red-500 text-red-600 dark:text-red-400'
+                  }`}>
+                  {statusText}
+                </span>
+              </div>
+            </div>
+
+            {/* Thumbnails (Responsive Grid) */}
+            <div className="grid grid-cols-4 gap-2 mt-4">
+              {displayImages.map((img, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setActiveImg(img)}
+                  className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${activeImg === img ? 'border-blue-500 scale-95 shadow-lg' : 'border-transparent opacity-60 hover:opacity-100'
+                    }`}
+                >
+                  <img src={img} alt="car thumb" className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div className="md:w-1/2 px-10 flex flex-col">
-            <div>
-              <h1 className="text-4xl font-extrabold mb-4 leading-tight text-white">
+          {/* RIGHT: Content Section */}
+          <div className="w-full lg:w-1/2 p-6 md:p-10 flex flex-col">
+            <div className="flex-grow">
+              <h1 className="text-3xl md:text-5xl font-black text-gray-900 dark:text-white mb-4 leading-tight">
                 {carName}
               </h1>
 
-              <p className="text-gray-300 mb-6 text-lg">{descriptionText}</p>
+              <p className="text-gray-600 dark:text-gray-400 text-sm md:text-base mb-8 leading-relaxed">
+                {description || "Experience the perfect balance of luxury and performance. This vehicle is well-maintained, fuel-efficient, and ready for your next adventure."}
+              </p>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8 mb-6 text-gray-300">
-                <div className="flex items-center">
-                  <Tag className="h-5 w-5 mr-2 text-blue-500" />
-                  <span>
-                    Category:{" "}
-                    <span className="font-semibold text-white">{category}</span>
-                  </span>
+              {/* Specs Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 mb-8">
+                <div className="flex items-center gap-4 p-4 bg-white dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-gray-800 transition-all hover:shadow-md">
+                  <Tag className="text-blue-500" size={24} />
+                  <div>
+                    <p className="text-[10px] uppercase font-bold text-gray-400">Category</p>
+                    <p className="font-bold text-gray-800 dark:text-gray-200">{category}</p>
+                  </div>
                 </div>
 
-                <div className="flex items-center">
-                  <DollarSign className="h-5 w-5 mr-2 text-green-500" />
-                  <span>
-                    Rent Price:{" "}
-                    <span className="font-semibold text-white">
-                      ${displayRentPrice.toFixed(2)}{" "}
-                    </span>{" "}
-                    / day
-                  </span>
+                <div className="flex items-center gap-4 p-4 bg-white dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-gray-800 transition-all hover:shadow-md">
+                  <DollarSign className="text-green-500" size={24} />
+                  <div>
+                    <p className="text-[10px] uppercase font-bold text-gray-400">Price/Day</p>
+                    <p className="font-bold text-gray-800 dark:text-gray-200">${displayRentPrice}</p>
+                  </div>
                 </div>
 
-                <div className="flex items-center">
-                  <MapPin className="h-5 w-5 mr-2 text-red-500" />
-                  <span>
-                    Location:{" "}
-                    <span className="font-semibold text-white">
-                      {locationText}
-                    </span>
-                  </span>
+                <div className="flex items-center gap-4 p-4 bg-white dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-gray-800 transition-all hover:shadow-md">
+                  <MapPin className="text-red-500" size={24} />
+                  <div>
+                    <p className="text-[10px] uppercase font-bold text-gray-400">Location</p>
+                    <p className="font-bold text-gray-800 dark:text-gray-200 truncate max-w-[120px]">{location}</p>
+                  </div>
                 </div>
 
-                <div className="flex items-center">
-                  {statusText === "available" ? (
-                    <CheckCircle className="h-5 w-5 mr-2 text-green-500" />
-                  ) : (
-                    <XCircle className="h-5 w-5 mr-2 text-red-500" />
-                  )}
-                  <span>
-                    Status:{" "}
-                    <span
-                      className={`font-semibold ${
-                        statusText === "available"
-                          ? "text-green-400"
-                          : "text-red-400"
-                      }`}
-                    >
-                      {statusText}
-                    </span>
-                  </span>
+                <div className="flex items-center gap-4 p-4 bg-white dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-gray-800 transition-all hover:shadow-md">
+                  <CheckCircle className="text-purple-500" size={24} />
+                  <div>
+                    <p className="text-[10px] uppercase font-bold text-gray-400">Security</p>
+                    <p className="font-bold text-gray-800 dark:text-gray-200">Verified Car</p>
+                  </div>
                 </div>
               </div>
 
-              <div className="mt-8 pt-6 border-t border-gray-700">
-                <h3 className="text-xl font-bold mb-3 text-white">
-                  Provider Information
-                </h3>
-                <div className="flex items-center text-gray-300 mb-2">
-                  <User className="h-5 w-5 mr-2 text-gray-500" />
-                  <span>
-                    Name:{" "}
-                    <span className="font-semibold text-white">
-                      {providerName}
-                    </span>
-                  </span>
-                </div>
-                <div className="flex items-center text-gray-300">
-                  <Mail className="h-5 w-5 mr-2 text-gray-500" />
-                  <span>
-                    Email:{" "}
-                    <span className="font-semibold text-white">
-                      {finalProviderEmail}
-                    </span>
-                  </span>
+              {/* Provider Info */}
+              <div className="p-5 bg-gray-100 dark:bg-black/20 rounded-2xl border border-gray-200 dark:border-gray-800">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 text-center sm:text-left">Listed By</p>
+                <div className="flex flex-col sm:flex-row items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-black text-xl shadow-lg">
+                    {providerName?.charAt(0)}
+                  </div>
+                  <div className="text-center sm:text-left overflow-hidden w-full">
+                    <p className="font-bold text-gray-900 dark:text-white truncate">{providerName}</p>
+                    <p className="text-xs text-gray-500 truncate">{finalProviderEmail}</p>
+                  </div>
                 </div>
               </div>
             </div>
 
+            {/* Action Button */}
             <div className="mt-8">
               <button
                 onClick={handleBookNow}
                 disabled={isDisabled}
-                className={`w-full ${
-                  isDisabled
-                    ? "bg-gray-500 cursor-not-allowed"
-                    : "bg-blue-600 hover:bg-blue-700"
-                } text-white font-bold py-3 px-6 rounded-lg text-lg transition-colors duration-200`}
+                className={`w-full py-4 md:py-5 rounded-2xl font-black text-lg transition-all transform active:scale-95 shadow-xl ${isDisabled
+                    ? "bg-gray-200 dark:bg-gray-800 text-gray-400 dark:text-gray-600 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/40 dark:shadow-blue-900/40"
+                  }`}
               >
                 {buttonText}
               </button>
+              <p className="text-center text-[10px] text-gray-400 mt-4 uppercase tracking-tighter">
+                Clicking book will confirm your reservation instantly
+              </p>
             </div>
           </div>
+
         </div>
       </div>
-    </section>
+    </div>
   );
 };
 
